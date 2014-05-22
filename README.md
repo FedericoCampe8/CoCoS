@@ -14,7 +14,7 @@ Software:
 How to install C/G-COCOS:
 In order to compile this tool, you need a standard Unix toolchain including a bash-compatible shell, and GNU make. On MacOS X, you need to install the XCode package. XCode is available from the Mac OS install DVD, or from the Apple Mac Dev Center. For Windows you can use the Cygwin environment that provides all necessary tools.
 
-Don't forget that GMAS is based on CUDA. Therefore you need the CUDA framework installed in your computer!
+Don't forget that G-COCOS is based on CUDA. Therefore you need the CUDA framework installed in your computer!
 
 Download and unzip MAS_CPU.zip (MAS_GPU.zip). The folder MAS_CPU (MAS_GPU) will contain all the files needed to run the tool. Then, do the following steps to set your compiler (if needed):
 
@@ -32,7 +32,7 @@ $./CompileAndRun.sh
 
 Running examples:
 
-After compiling CMAS(GMAS) , some examples can be run directly from the command line by invoking the executable file. The executable file is called cocos (COncurrent system with COnstraints for protein Structure prediction).
+After compiling C-COCOS (G-COCOS) , some examples can be run directly from the command line by invoking the executable file. The executable file is called cocos (COncurrent system with COnstraints for protein Structure prediction).
 
 Use:
 
