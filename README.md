@@ -6,7 +6,9 @@ This is a Constraint Solver for Protein Structure Prediction (PSP) based on loca
 We present an approach to the Protein Structure Prediction (PSP) problem that relies on a Multi-Agents System (MAS) perspective, where concurrent agents explore the folding of different parts of a protein. The strength of the approach lies in the agents’ ability to apply different types of knowledge, expressed in the form of declarative constraints, to prune the search space of folding alternatives. We demonstrate the suitability of a General-Purpose Graphical Processing Unit (GPGPU) approach to implement such MAS infrastructure, with significant performance improvements over the sequential implementation and other methods.
 
 Software:
+
 1) The CPU version of the MAS tool (C-COCOS).
+
 2) The GPU version of the MAS tool (G-COCOS).
 
 How to install C/G-COCOS:
