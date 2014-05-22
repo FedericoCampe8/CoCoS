@@ -17,11 +17,15 @@ Don't forget that GMAS is based on CUDA. Therefore you need the CUDA framework i
 Download and unzip MAS_CPU.zip (MAS_GPU.zip). The folder MAS_CPU (MAS_GPU) will contain all the files needed to run the tool. Then, do the following steps to set your compiler (if needed):
 
 1) cd jnetsrc/src
+
 2) edit CC and CFLAGS lines in the Makefile to reflect your compiler and optimiser
+
 3) cd..
+
 4) edit CC and CFLAGS lines in the Makefile to reflect your compiler and optimiser
 
 Then you just need to run the script CompileAndRun.sh:
+
 $./CompileAndRun.sh
 
 Running examples:
@@ -50,7 +54,7 @@ that uses 1ZDD.in.cocos as input file containing the descriptions of the agents 
 
 Tests and benchmarks:
 
-We tested the system on several proteins of different type and length. For each target we provide the input file and the best protein predicted by tool saved as a pdb file. These results can be downloaded from here (148.3 MB).
+We tested the system on several proteins of different type and length. For each target we provide the input file and the best protein predicted by tool saved as a pdb file.
 
 Thanks for reading this page. For any general question about the system feel free to contact write to campe8@nmsu.edu.
 
