@@ -285,9 +285,7 @@ Math::torsion_angle ( real* a, real* b, real* c, real* d ) {
   real vec_prod[3];
   vcross ( abc, bcd, vec_prod );
   real val = vdot( cb, vec_prod );
-  //if ( fabs( val ) < CLOSE_TO_ZERO_VAL  ) val = 0.0;
-  if ( abs( val < CLOSE_TO_ZERO_VAL ) ) val = 0.0;
-  //if ( abs( val ) < CLOSE_TO_ZERO_VAL ) val = 0.0;
+  if ( val < CLOSE_TO_ZERO_VAL ) val = 0.0;
   if ( val < 0.0 ) angle *= -1;
   
   return angle;

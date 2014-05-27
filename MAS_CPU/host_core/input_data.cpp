@@ -168,8 +168,21 @@ Input_data::create_input_file () {
   
   pid_t pid=fork();
   if (pid==0) { /// child process
-    static char *argv[]={"jnet","-p", cstr, NULL};
-    execv("./bin_jnet/jnet",argv);
+    string prg_name = "jnet";
+    string prg_opts = "-s";
+    
+    char *prg_name_nc = new char[ prg_name.length() + 1 ];
+    strcpy ( prg_name_nc, prg_name.c_str() );
+    
+    char *prg_opts_nc = new char[ prg_opts.length() + 1 ];
+    strcpy ( prg_opts_nc, prg_opts.c_str() );
+    
+    static char *argv[] = { prg_name_nc, prg_opts_nc, cstr, NULL };
+    execv( "./bin_jnet/jnet",argv );
+    
+    delete [] prg_name_nc;
+    delete [] prg_opts_nc;
+    
     exit(127); /// only if execv fails
   }
   else { /// pid!=0; parent process
