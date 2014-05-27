@@ -118,7 +118,7 @@ Supervisor::search() {
         g_logicvars.set_point_variables ( _current_solution );
         /// Set the new (partially) folded status
         _mas_agents[ i ].second->set_current_status ( g_logicvars.cp_structure );
-        //_mas_agents[ i ].second->search ();
+        _mas_agents[ i ].second->search ();
         /// Prepare structure for next coordinator agent
         if ( gh_params.n_coordinators > 1 &&
              ((_mas_agents[ i ].second->get_scope_start() > 0) ||
