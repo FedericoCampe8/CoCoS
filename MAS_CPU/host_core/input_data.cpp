@@ -32,10 +32,14 @@ _angles_file      ( "" ) {
   gh_params.follow_rmsd      = false;
   gh_params.verbose          = false;
   gh_params.centroid         = false;
+  gh_params.translate_str    = false;
   gh_params.n_gibbs_samples  = -1;
+  gh_params.timer            = -1;
   gh_params.n_coordinators   = 1;
   gh_params.set_size         = MAX_GIBBS_SET_SIZE;
-  gh_params.timer            = -1;
+  gh_params.translation_point[ 1 ]    = 0;
+  gh_params.translation_point[ 2 ]    = 0;
+  gh_params.translation_point[ 3 ]    = 0;
   gh_params.n_gibbs_iters_before_swap = 0;
 
   // Process input
@@ -378,6 +382,39 @@ Input_data::read_file () {
       else if (line.compare( 0, 6, "ANGLES" ) == 0 ) {
         _angles_file = line.substr(start, line.size() - start);
         energy_parameters_read++;
+      }
+      /// Some Constraints
+      else if (line.compare( 0, 9, "TRANSLATE" ) == 0 ) {
+        gh_params.translate_str = true;
+        
+        size_t found = (line.substr( 9, line.size() )).find_first_not_of(" ");
+        found += 9;
+        if ( line[ found+1 ] == ' ') {
+          /// N, H, C, O
+          gh_params.translation_point[ 0 ] = Utilities::cv_string_to_atom_type( line.substr( found, 2 ) );
+          found += 2;
+        }
+        else {
+          /// CA
+          gh_params.translation_point[ 0 ] = Utilities::cv_string_to_atom_type( line.substr( found, 3 ) );
+          found += 3;
+        }
+        
+        std::stringstream stream( line.substr( found, line.size() ) );
+        
+        double n;
+        int parsed_val = 0;
+        while( 1 ) {
+          stream >> n;
+          if ( !parsed_val ) {
+            gh_params.translation_point[ 0 ] += n*5;
+          }
+          else {
+            gh_params.translation_point[ parsed_val ] = n;
+          }
+          if( !stream ) break;
+          parsed_val++;
+        }
       }
       /// Secondary Structure Descriptions, Agents, and Priorities
       else if ( line.compare( 0, 2, "H " ) == 0 ||

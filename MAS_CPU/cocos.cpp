@@ -33,13 +33,13 @@ int main ( int argc, char* argv[] ) {
   /***************************************
    *         INIT DATA STRUCTURES        *
    ***************************************/
-  //cout << dbg << "Initialize Data...\n";
+  cout << dbg << "Initialize Data...\n";
   Input_data i_data( argc, argv );
   /***************************************
    *           LOGIC VARIABLES           *
    ***************************************/
-  //cout << dbg <<
-  //"Generating Logic Variables...\n";
+  cout << dbg <<
+  "Generating Logic Variables...\n";
   g_logicvars.init_logic_variables ();
   
   /***************************************
@@ -50,8 +50,8 @@ int main ( int argc, char* argv[] ) {
   /***************************************
    *             CONSTRAINTS             *
    ***************************************/
-  //cout << dbg <<
-  //"Setting Constraints on Variables..." << endl;
+  cout << dbg <<
+  "Setting Constraints on Variables...\n";
   /// CONSTRAINT: SANG/RANG
   set_search_labeling_strategies ();
   /// CONSTRAINT: ALL_DISTANT
@@ -91,15 +91,8 @@ int main ( int argc, char* argv[] ) {
   /***************************************
    *           CLEAR AND EXIT            *
    ***************************************/
-  //cout << dbg << "Freeing memory" << endl;
+  cout << dbg << "Freeing memory" << endl;
   i_data.clear_data();
-  /*
-  g_logicvars.clear_variables();
-  for ( int i = 0; i < g_constraints.size(); i++ )
-    delete g_constraints[i];
-   g_constraints.clear();
-   supervisor_agt.~Supervisor();
-  */
   cout << dbg << "Memory freed." << endl;
   cout << dbg << "Exit from COCOS... \n";
 

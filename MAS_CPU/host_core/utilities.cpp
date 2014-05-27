@@ -366,6 +366,21 @@ Utilities::get_atom_type (string name) {
   else return X;
 }//get_atom_type
 
+atom_type
+Utilities::cv_string_to_atom_type( string name ) {
+  if ( name.find("N") != string::npos )
+    return N;
+  else if ( name.find("CA") != string::npos )
+    return CA;
+  else if ( name.find("C") != string::npos )
+    return CB;
+  else if ( name.find("O") != string::npos )
+    return O;
+  else if ( name.find("H") != string::npos )
+    return H;
+  else return X;
+}//cv_cv_string_to_str_type
+
 /***************************************
  *      Offsets and Atom postions      *
  ***************************************/

@@ -117,10 +117,17 @@ LogicVariables::populate_point_variables () {
   }//i
   
   cp_structure = new real[ num_points*3 ];
+  
+  if ( gh_params.translate_str ) {
+    gh_params.translation_point[ 1 ] -= cp_structure_aux[ (int) gh_params.translation_point[ 0 ] ][ 0 ];
+    gh_params.translation_point[ 2 ] -= cp_structure_aux[ (int) gh_params.translation_point[ 0 ] ][ 1 ];
+    gh_params.translation_point[ 3 ] -= cp_structure_aux[ (int) gh_params.translation_point[ 0 ] ][ 2 ];
+  }
+  
   for (int i = 0; i < num_points; i++) {
-    cp_structure[ i*3 + 0 ] = cp_structure_aux[ i ][ 0 ];
-    cp_structure[ i*3 + 1 ] = cp_structure_aux[ i ][ 1 ];
-    cp_structure[ i*3 + 2 ] = cp_structure_aux[ i ][ 2 ];
+    cp_structure[ i*3 + 0 ] = cp_structure_aux[ i ][ 0 ] - gh_params.translation_point[ 1 ];
+    cp_structure[ i*3 + 1 ] = cp_structure_aux[ i ][ 1 ] - gh_params.translation_point[ 2 ];
+    cp_structure[ i*3 + 2 ] = cp_structure_aux[ i ][ 2 ] - gh_params.translation_point[ 3 ];
   }
   
   delete [] cp_structure_aux;

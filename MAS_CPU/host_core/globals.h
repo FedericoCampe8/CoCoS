@@ -33,11 +33,6 @@
 #include <vector>
 #include <utility>
 
-/* Cuda */
-//#include "cuda.h"
-//#include <curand.h>
-//#include <curand_kernel.h>
-
 /* Other */
 #include "typedefs.h"
 #include "protein.h"
@@ -60,17 +55,19 @@ typedef struct {
 
 typedef struct {
   /// Input options
-  bool follow_rmsd;
-  bool centroid;
-  bool gibbs_as_default;
-  bool verbose;
-  real str_weights[3];
-  real crd_weights[3];
-  int  n_coordinators;
-  int  set_size;
-  int  n_gibbs_samples;
-  int  n_gibbs_iters_before_swap;
-  int  timer;
+  bool   follow_rmsd;
+  bool   translate_str;
+  bool   centroid;
+  bool   gibbs_as_default;
+  bool   verbose;
+  real   str_weights[3];
+  real   crd_weights[3];
+  int    n_coordinators;
+  int    set_size;
+  int    n_gibbs_samples;
+  int    n_gibbs_iters_before_swap;
+  int    timer;
+  double translation_point[4];
   /// Output options
   std::string output_file;
   /// Variables and domains
