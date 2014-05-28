@@ -24,6 +24,7 @@ namespace Utilities{
   aminoacid cv_aa_to_class ( std::string a );
   int cv_class_to_n ( aminoacid a );
   atom_type get_atom_type( std::string name );
+  atom_type cv_string_to_atom_type( std::string name );
   
   /***************************************
    *      Offsets and Atom postions      *

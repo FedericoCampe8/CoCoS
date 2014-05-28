@@ -125,9 +125,9 @@ LogicVariables::populate_point_variables () {
   }
   
   for (int i = 0; i < num_points; i++) {
-    cp_structure[ i*3 + 0 ] = cp_structure_aux[ i ][ 0 ] - gh_params.translation_point[ 1 ];
-    cp_structure[ i*3 + 1 ] = cp_structure_aux[ i ][ 1 ] - gh_params.translation_point[ 2 ];
-    cp_structure[ i*3 + 2 ] = cp_structure_aux[ i ][ 2 ] - gh_params.translation_point[ 3 ];
+    cp_structure[ i*3 + 0 ] = cp_structure_aux[ i ][ 0 ] + gh_params.translation_point[ 1 ];
+    cp_structure[ i*3 + 1 ] = cp_structure_aux[ i ][ 1 ] + gh_params.translation_point[ 2 ];
+    cp_structure[ i*3 + 2 ] = cp_structure_aux[ i ][ 2 ] + gh_params.translation_point[ 3 ];
   }
   
   delete [] cp_structure_aux;
@@ -226,9 +226,9 @@ LogicVariables::print_point_variables ( int start_aa, int end_aa ) {
   point* cp_structure_aux = new point[ len ];
   
   real translation_vector[ 3 ];
-  translation_vector[ 0 ] = cp_structure[ 1*3 + 0 ];
-  translation_vector[ 1 ] = cp_structure[ 1*3 + 1 ];
-  translation_vector[ 2 ] = cp_structure[ 1*3 + 2 ];
+  translation_vector[ 0 ] = cp_structure[ 1*3 + 0 ] * gh_params.translate_str_fnl;
+  translation_vector[ 1 ] = cp_structure[ 1*3 + 1 ] * gh_params.translate_str_fnl;
+  translation_vector[ 2 ] = cp_structure[ 1*3 + 2 ] * gh_params.translate_str_fnl;
   
   for (int i = start_aa; i < len; i++) {
     cp_structure_aux[ i ][ 0 ] = cp_structure[ i*3 + 0 ] - translation_vector[ 0 ];

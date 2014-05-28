@@ -28,15 +28,16 @@ _contact_params   ( "" ),
 _tors_params      ( "" ),
 _angles_file      ( "" ) {
   //Default values
-  gh_params.gibbs_as_default = false;
-  gh_params.follow_rmsd      = false;
-  gh_params.verbose          = false;
-  gh_params.centroid         = false;
-  gh_params.translate_str    = false;
-  gh_params.n_gibbs_samples  = -1;
-  gh_params.timer            = -1;
-  gh_params.n_coordinators   = 1;
-  gh_params.set_size         = MAX_GIBBS_SET_SIZE;
+  gh_params.gibbs_as_default  = false;
+  gh_params.follow_rmsd       = false;
+  gh_params.verbose           = false;
+  gh_params.centroid          = false;
+  gh_params.translate_str     = false;
+  gh_params.translate_str_fnl = false;
+  gh_params.n_gibbs_samples   = -1;
+  gh_params.timer             = -1;
+  gh_params.n_coordinators    = 1;
+  gh_params.set_size          = MAX_GIBBS_SET_SIZE;
   gh_params.translation_point[ 1 ]    = 0;
   gh_params.translation_point[ 2 ]    = 0;
   gh_params.translation_point[ 3 ]    = 0;
@@ -45,7 +46,7 @@ _angles_file      ( "" ) {
   // Process input
   int c;
   bool auto_allign = false;
-  while ( (c = getopt(argc, argv, "i:o:c:g:t:srhveaq")) != -1 ) {
+  while ( (c = getopt(argc, argv, "i:o:c:g:t:srhveaql")) != -1 ) {
     switch ( c ) {
       case 'i':
         /// Input file name
@@ -78,6 +79,10 @@ _angles_file      ( "" ) {
       case 't':
         /// Set iters before swapping bins
         gh_params.n_gibbs_iters_before_swap = atoi ( optarg );
+        break;
+      case 'l':
+        /// Translate final structure with CA (0 aa) to 0 0 0
+        gh_params.translate_str_fnl = true;
         break;
       case 'a':
         /// Automagically create an input file!
@@ -1202,7 +1207,7 @@ Input_data::dump () {
 
 void
 Input_data::print_help () {
-  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-r] [-q] [-v] [-h]\n" << endl;
+  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-r] [-q] [-v] [-l] [-h]\n" << endl;
   cout << "Options for Cocos:\n";
   cout << "\t" << "-i (string)\n";
   cout << "\t\t" << "set input\n";
@@ -1220,8 +1225,14 @@ Input_data::print_help () {
   cout << "\t\t" << "set RMSD as objective function\n";
   cout << "\t" << "-q\n";
   cout << "\t\t" << "set Gibbs sampling algorithm on all Coordinator agents (default: MonteCarlo)\n";
+  cout << "\t" << "-l\n";
+  cout << "\t\t" << "Translate the final structure with the first CA atom set on (0, 0, 0)\n";
   cout << "\t" << "-v\n";
   cout << "\t\t" << "printf verbose info during computation\n";
   cout << "\t" << "-h\n";
   cout << "\t\t" << "print this help message\n";
+  cout << "You may want to try:\n";
+  cout << "\t" << "./cocos -i proteins/1ZDD.in.cocos -v\n";
+  cout << "Other examples, input data, and structures are present in the folder \"protein\".\n";
+  cout << "For any question, feel free to write at: campe8@nmsu.edu\n";
 }//print_help

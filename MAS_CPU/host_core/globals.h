@@ -57,6 +57,7 @@ typedef struct {
   /// Input options
   bool   follow_rmsd;
   bool   translate_str;
+  bool   translate_str_fnl;
   bool   centroid;
   bool   gibbs_as_default;
   bool   verbose;
