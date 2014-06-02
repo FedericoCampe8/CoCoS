@@ -58,5 +58,5 @@ Tests and benchmarks:
 
 We tested the system on several proteins of different type and length. For each target we provide the input file and the best protein predicted by tool saved as a pdb file.
 
-Thanks for reading this page. For any general question about the system feel free to contact write to campe8@nmsu.edu.
+Thanks for reading this page. For any general question about the system feel free to contact campe8@nmsu.edu.
 
