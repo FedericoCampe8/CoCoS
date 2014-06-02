@@ -26,7 +26,7 @@ Protein::~Protein () {
 }//-
 
 void 
-Protein::load_protein (string filename, string chain) {
+Protein::load_protein ( string filename, string chain ) {
   
   // Tokens used to parse the string from the pdb file
   const string dbref = "DBREF ";

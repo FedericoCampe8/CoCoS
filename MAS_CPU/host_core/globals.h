@@ -39,6 +39,7 @@
 
 class LogicVariables;
 class Constraint;
+class AtomGrid;
 
 
 // GLOBAL STRUCTURES
@@ -78,8 +79,9 @@ typedef struct {
   //uint * bool_states;
   real * validity_solutions;
   /// Constraints info
-  int num_cons;
-  int max_scope_size;
+  bool atom_grid;
+  int  num_cons;
+  int  max_scope_size;
   std::vector< int > constraint_descriptions;
   std::vector< int > constraint_descriptions_idx;
   std::vector< std::vector< std::vector<int> > > constraint_events;
@@ -132,6 +134,7 @@ extern H_GLB_params gh_params;
 extern D_GLB_params gd_params;
 
 extern LogicVariables g_logicvars;
+extern AtomGrid *     g_atom_grid;
 extern std::vector < Constraint* > g_constraints;
 
 #endif

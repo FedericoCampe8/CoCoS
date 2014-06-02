@@ -6,6 +6,7 @@
 #include "tors_bmf.h"
 #include "utilities.h"
 #include "atom.h"
+#include "atom_grid.h"
 
 //#define INPUT_DATA_DBG
 
@@ -34,6 +35,7 @@ _angles_file      ( "" ) {
   gh_params.centroid          = false;
   gh_params.translate_str     = false;
   gh_params.translate_str_fnl = false;
+  gh_params.atom_grid         = false;
   gh_params.n_gibbs_samples   = -1;
   gh_params.timer             = -1;
   gh_params.n_coordinators    = 1;
@@ -420,6 +422,14 @@ Input_data::read_file () {
           if( !stream ) break;
           parsed_val++;
         }
+      }
+      else if (line.compare( 0, 9, "ATOM_GRID" ) == 0 ) {
+        size_t found = (line.substr( 9, line.size() )).find_first_not_of(" ");
+        found += 9;
+        _atom_grid_file = line.substr(found, line.size() - found);
+        gh_params.atom_grid = true;
+        g_atom_grid = new AtomGrid ( 1 );
+        g_atom_grid->fill_grid ( _atom_grid_file );
       }
       /// Secondary Structure Descriptions, Agents, and Priorities
       else if ( line.compare( 0, 2, "H " ) == 0 ||

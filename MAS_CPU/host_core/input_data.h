@@ -21,7 +21,8 @@ private:
   std::string _h_angles;          // Hydrogen bond energy parameters
   std::string _contact_params;    // Contact energy parameters
   std::string _tors_params;       // Torsional energy parameters
-  
+  /// Constraints
+  std::string _atom_grid_file;    // Grid constraint path (list of atoms)
   /// Domains
   void read_file ();
   void read_from_prot ();

@@ -7,6 +7,7 @@ H_FOLDER=host_core
 
 HEADERS_CORE=atom.h\
     logic_variables.h\
+	atom_grid.h\
 	aminoacid.h\
 	domain.h\
 	protein.h\
