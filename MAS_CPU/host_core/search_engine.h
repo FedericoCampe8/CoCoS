@@ -6,6 +6,12 @@
 #include "constraint_store.h"
 #include "worker_agent.h"
 
+/*
+ * SearchEngine: interface for strategies (i.e., search algorithms).
+ * See "Strategy" design pattern.
+ * @note: context (i.e., the common interface used by the client) not used here.
+ *        Clients use SearchEngine interface directly.
+ */
 class SearchEngine {
 protected:
   bool _abort_search;
@@ -21,18 +27,20 @@ protected:
   std::map< int, WorkerAgent* >* _wrks;
   std::map< int, WorkerAgent* >::iterator _wrks_it;
   
+  SearchEngine ( MasAgent* mas_agt ) ;
+  SearchEngine ( const SearchEngine& );
+  
 public:
   real * start_structure;
   
-  SearchEngine ( MasAgent* mas_agt ) ;
-  SearchEngine ( const SearchEngine& );
-  virtual ~SearchEngine ();
-  
+  /// Interface
+  virtual ~SearchEngine () = 0;
   virtual void reset () = 0;
   virtual void search () = 0;
-  virtual int choose_label ( WorkerAgent* w ) = 0;
+  virtual int  choose_label ( WorkerAgent* w ) = 0;
   
   void set_status ( real* status, int n );
+  
   void abort ();
   bool aborted () const;
   real get_local_minimum () const ;

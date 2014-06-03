@@ -59,4 +59,5 @@ SearchEngine::aborted () const {
 
 void
 SearchEngine::dump_statistics ( std::ostream &os ) const {
+  /// ToDo
 }//-

@@ -8,7 +8,7 @@
 #include "search_engine.h"
 
 class MONTECARLO : public SearchEngine {
-private:
+protected:
   int _n_vars;
   /// Variable selection strategy: 0 -> seq, 1 -> random
   int _var_selection;

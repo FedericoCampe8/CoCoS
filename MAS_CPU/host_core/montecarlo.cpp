@@ -81,7 +81,6 @@ MONTECARLO::all_ground () const {
 
 void
 MONTECARLO::reset () {
-  /// Set ICM default values
   _level         = 0;
   _n_vars        = _wrks->size();
   _wrks_it       = _wrks->begin();
@@ -185,7 +184,8 @@ MONTECARLO::search () {
     if ( (!try_again) && (gh_params.timer >= 0) ) break;
     /// If something is changed -> update solution
     update_solution ();
-    /*
+    
+#ifdef MONTECARLO_DEBUG
     if ( ((++n_iters) % 10) == 0) {
       cout << _dbg;
       if ( gh_params.follow_rmsd ) {
@@ -195,7 +195,8 @@ MONTECARLO::search () {
         printf("MonteCarlo Iteration: %d with energy %.8f\n", n_iters, _local_minimum);
       }
     }
-    */
+#endif
+    
     if (n_iters > 1000) {
       try_again = false;
     }
@@ -203,8 +204,10 @@ MONTECARLO::search () {
     /// If no changes and not all variables are ground force the labeling on one variable
     if ( (!_changed) && (!all_ground()) ) force_label ();
     if ( (!_exit_asap) && all_ground() && unleash_temperature ) {
+#ifdef MONTECARLO_DEBUG
+      cout << "heat it up: " << _temperature << " -> " << _temperature + _decreasing_factor << endl;
+#endif
       /// Decrease temperature (increase -> less probability to take a worst structure)
-      /*cout << "heat it up: " << _temperature << " -> " << _temperature + _decreasing_factor << endl;*/
       _temperature += _decreasing_factor;
       if ( _temperature >= 100.0 ) { _temperature = 80.0; _n_of_restarts++; /*cout << "increase n. of restarts\n";*/ }
       /// After _max_n_restarts exit asap
@@ -223,9 +226,11 @@ MONTECARLO::search () {
         if ( _temperature >= 100.0  /*&& cool_it_down*/ ) {
           _temperature = 30.0 + ((100.0/_max_iterations) * ((cool_down_times++) - 1));
           //_temperature = 30.0; cool_it_down = false;
-          /*cout << "cool it down\n";*/
+
         }
-        /*cout << _iter_counter << " prev==current -> unleash " << _iter_counter << " t: " << _temperature << endl;*/
+#ifdef MONTECARLO_DEBUG
+        cout << _iter_counter << " prev==current -> unleash " << _iter_counter << " t: " << _temperature << endl;
+#endif
         unleash_temperature = true;
       }
       else {
@@ -236,7 +241,7 @@ MONTECARLO::search () {
       previous_int_par = int_part;
     }
     else {
-      /// Exit as soon as.
+      /// Exit as soon as possible
       /// _changed: false (no changes) /\ (!all_ground()) = false (all_ground() = true)
       try_again = ( _changed || (!all_ground()) );
     }
@@ -411,11 +416,11 @@ MONTECARLO::assign_with_prob ( int label, WorkerAgent* w ) {
     rnd_num = 1.0;
   }
   /// If random is > temperature accept a worst structure
-  /*
+#ifdef MONTECARLO_DEBUG
   cout << _dbg << "rnd_num " << rnd_num << " temp " << (_temperature / 100.0) <<
   " _local_current_minimum " << _local_current_minimum << " new " <<
   gh_params.beam_energies[ label ] << endl;
-  */
+#endif
   if ( rnd_num > (_temperature / 100.0) ) {
     _changed               = true;
     _best_agent            = _last_idx_sel;

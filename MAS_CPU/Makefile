@@ -22,6 +22,7 @@ HEADERS_CORE=atom.h\
 	worker_agent.h\
 	search_engine.h\
 	icm.h\
+ 	docking.h\
 	montecarlo.h\
 	constraint_store.h\
 	constraint.h\

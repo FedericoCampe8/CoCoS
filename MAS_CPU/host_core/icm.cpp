@@ -113,6 +113,20 @@ ICM::worker_selection () {
 
 void
 ICM::search () {
+  do {
+#ifdef ICM_DEBUG
+    static int n_iteration = 0;
+    cout << _dbg << "Iteration n_" << ++n_iteration << "\n";
+#endif
+    
+    reset_iteration ();
+    icm_search ();
+    
+  } while ( is_changed() );
+}//search
+
+void
+ICM::icm_search () {
 #ifdef ICM_DEBUG
   cout << _dbg << " Start search...\n";
 #endif
