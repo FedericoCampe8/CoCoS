@@ -17,4 +17,5 @@ KNOWN_PROT  Docking/PeptideDocking
 % P - polyproline II
 % C - coil
 % Constraints
-ATOM_GRID Docking/Dock.pdb
+TRANSLATE O 0 13.9 -10.6 -17.8
+ATOM_GRID Docking/Dock_no_CG.pdb

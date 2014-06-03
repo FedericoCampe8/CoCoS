@@ -276,16 +276,14 @@ Propagator::prop_c_dist ( int v_id, int c_id, int c_idx ) {
  */
 void
 Propagator::prop_c_atom_grid ( int v_id, int c_id, int c_idx ) {
-//#ifdef PROP_DEBUG
+#ifdef PROP_DEBUG
   cout << "atom_grid constraint V_" << v_id << endl;
-  getchar();
-//#endif
+  //getchar();
+#endif
   
   int type_of_agent = gh_params.constraint_descriptions[ c_idx + 3 +
                                                          gh_params.constraint_descriptions[ c_idx + 1 ] +
                                                          gh_params.n_res + 1 ];
-  return;
-  
   int n_blocks;
   int n_threads = gh_params.n_res;
   int smBytes   = gh_params.n_points * sizeof(real);
@@ -293,13 +291,13 @@ Propagator::prop_c_atom_grid ( int v_id, int c_id, int c_idx ) {
     n_blocks = gh_params.set_size;
     if ( gd_params.beam_str_upd == NULL ) {
       atom_grd( gd_params.beam_str,
-                  gd_params.validity_solutions,
-                  v_id, n_blocks, n_threads, smBytes);
+                gd_params.validity_solutions,
+                v_id, n_blocks, n_threads, smBytes);
     }
     else {
       atom_grd( gd_params.beam_str_upd,
-                  gd_params.validity_solutions,
-                  v_id, n_blocks, n_threads, smBytes);
+                gd_params.validity_solutions,
+                v_id, n_blocks, n_threads, smBytes);
     }
     
   }
@@ -307,8 +305,8 @@ Propagator::prop_c_atom_grid ( int v_id, int c_id, int c_idx ) {
     AminoAcid* aa = g_logicvars.cp_variables[ v_id ];
     n_blocks  = aa->get_domain_size();
     atom_grd( gd_params.beam_str,
-                gd_params.validity_solutions,
-                v_id, n_blocks, n_threads, smBytes);
+              gd_params.validity_solutions,
+              v_id, n_blocks, n_threads, smBytes);
     
   }
   /// To optimize...

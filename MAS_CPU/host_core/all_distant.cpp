@@ -12,15 +12,8 @@ using namespace Math;
 /// @note: | D_aa | == gridDim.x
 void
 all_distant ( real* beam_str, real* validity_solutions, int v_id, int n_blocks, int n_threads, int n_bytes ) {
-  // int warp = WHICHWARP( blockIdx.x );//blockIdx.x>>5
-  //if ( domain_states[ offset + (blockIdx.x>>5) ] & ((uint) (1<<(blockIdx.x%32))) ) {
   for ( int blockIdx = 0; blockIdx < n_blocks; blockIdx++ ) {
     int check_success = 1;
-    /*
-    if (v_id==15)
-      check_all_dist ( &beam_str[ blockIdx * n_threads * 15 ], &check_success, n_threads, v_id );
-    else
-     */
     check_all_dist ( &beam_str[ blockIdx * n_threads * 15 ], &check_success, n_threads );
     if ( !check_success ) {
       validity_solutions[ blockIdx ] = 0;

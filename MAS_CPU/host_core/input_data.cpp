@@ -422,13 +422,13 @@ Input_data::read_file () {
         int parsed_val = 0;
         while( 1 ) {
           stream >> n;
+          if( !stream ) break;
           if ( !parsed_val ) {
             gh_params.translation_point[ 0 ] += n*5;
           }
           else {
             gh_params.translation_point[ parsed_val ] = n;
           }
-          if( !stream ) break;
           parsed_val++;
         }
       }
@@ -639,12 +639,13 @@ void
 Input_data::init_data () {
   /// Output file
   gh_params.output_file = _out_file;
+  
   /// Energy Weights (default values)
   gh_params.minimum_energy   = 0;
   gh_params.str_weights[ 0 ] = 0.8; ///1.2
   gh_params.str_weights[ 1 ] = 0.01;
   gh_params.str_weights[ 2 ] = 0.7;
-  
+
   gh_params.crd_weights[ 0 ] = 8;
   gh_params.crd_weights[ 1 ] = 22;  //25;
   gh_params.crd_weights[ 2 ] = 7;   //3;
@@ -660,7 +661,6 @@ Input_data::init_data () {
   gh_params.crd_weights[ 2 ] = 90.357393;   //3;
    */
 
-  
   /// Load Known Protein and Target sequence
   if ( _know_prot && ( _target_sequence.compare( "" ) == 0 ) ) {
     gh_params.known_protein  = new Protein();
@@ -676,12 +676,13 @@ Input_data::init_data () {
     cout << _dbg << "Set FASTA for target\n";
     exit(2);
   }
+
   if ( gh_params.verbose ) gh_params.target_protein->print_sequence ();
   
   gh_params.n_res    = gh_params.target_protein->get_nres();
   gh_params.n_points = gh_params.n_res * 15;
   assert ( gh_params.n_res <= MAX_TARGET_SIZE );
-  
+
   if ( gh_params.follow_rmsd ) {
     int bb_len = (int) gh_params.target_protein->get_bblen();
     gh_params.known_bb_coordinates = (real *) malloc( 3 * bb_len * sizeof(real) );
@@ -689,7 +690,6 @@ Input_data::init_data () {
       for (int j = 0; j < 3; j++)
         gh_params.known_bb_coordinates[i*3 + j] = gh_params.known_protein->get_tertiary()[ i ][ j ];
   }
-  
   /// Last Agent -> Default values
   bool to_break = false;
   vector < int > last_agent;
@@ -732,7 +732,6 @@ Input_data::init_data () {
   /// Null pointers to indentify which array is used (set not NULL later if used)
   gd_params.beam_str     = NULL;
   gd_params.beam_str_upd = NULL;
-  
   Utilities::print_debug ( _dbg, "Loading angles table" );
   load_angles ();
   load_angles_aux ();
@@ -1221,6 +1220,14 @@ Input_data::dump () {
   cout << _dbg << "Angles file           : " << _angles_file << endl;
   cout << _dbg << "Protein Known  ref    : " << _known_prot_file << endl;
   cout << _dbg << "Protein Target ref    : " << _target_prot_file << endl;
+  cout << "\n" << " ---- ";
+  if ( gh_params.sys_job == ab_initio ) {
+    cout << "Ab_initio";
+  }
+  else {
+    cout << "Docking";
+  }
+  cout << " ---- " << endl;
   cout << endl;
 }//dump
 

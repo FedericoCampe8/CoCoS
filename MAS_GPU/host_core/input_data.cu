@@ -382,13 +382,13 @@ Input_data::read_file () {
         int parsed_val = 0;
         while( 1 ) {
           stream >> n;
+          if( !stream ) break;
           if ( !parsed_val ) {
             gh_params.translation_point[ 0 ] += n*5;
           }
           else {
             gh_params.translation_point[ parsed_val ] = n;
           }
-          if( !stream ) break;
           parsed_val++;
         }
       }

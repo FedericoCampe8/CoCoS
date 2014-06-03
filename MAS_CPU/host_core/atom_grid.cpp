@@ -6,6 +6,8 @@
 #include <cassert>
 #include <cmath>
 
+//#define QUERY_DBG
+
 using namespace std;
 using namespace Math;
 using namespace Utilities;
@@ -184,6 +186,11 @@ AtomGrid::query ( real x, real y, real z, atom_type type ) {
 }//query
 
 bool
+AtomGrid::query ( const point& vp, atom_type type ) {
+  return query ( vp, type, -1 );
+}
+
+bool
 AtomGrid::query ( const Atom& a ) {
   return query ( a.position, a.type, a.ref_aa );
 }//query
@@ -195,6 +202,12 @@ AtomGrid::query (const point& vp, atom_type type, int ref_aa) {
   int y = (int)floor ( vp[ 1 ] / GRID_SIDE );
   int z = (int)floor ( vp[ 2 ] / GRID_SIDE );
   int d = _grid_max_dist;
+
+#ifdef QUERY_DBG
+  cout << "#log: AtomGrid::query - Query point " << x << " " << y << " "
+  << z << " " << " dist " << d << endl;
+#endif
+  
   real EPSILON = 30;
   size_t a = 0;
   size_t idx, natoms;
