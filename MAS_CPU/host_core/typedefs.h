@@ -37,6 +37,7 @@ typedef real vec3[3];
 typedef real point[3];
 typedef real R_MAT[3][3];
 
+enum sys_usage     { ab_initio, docking };
 enum agent_type    { supervisor, coordinator, structure, worker };
 enum ss_type       { helix, pi_helix, g_helix, turn, coil, sheet, other };
 enum search_type   { icm, gibbs, montecarlo, complete, c_type_search };
@@ -56,6 +57,7 @@ enum constr_type   { c_sang,
                      c_cg,
                      c_mang,
                      c_dist,
+                     c_atom_grid,
                      c_type_size
 };
 

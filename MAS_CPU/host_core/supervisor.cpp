@@ -74,9 +74,10 @@ Supervisor::set_agents () {
            */
         }
         
-        /// Skip first and last amino acid (tails)
-        if ( (cr_agt->get_var_id ( ii ) == 0) ||
-             (cr_agt->get_var_id ( ii ) == (gh_params.n_res - 1)) ) {
+        /// Skip first and last amino acid (tails) for ab-initio prediction
+        if ( ((cr_agt->get_var_id ( ii ) == 0) ||
+             (cr_agt->get_var_id ( ii ) == (gh_params.n_res - 1))) &&
+             (gh_params.sys_job == ab_initio) ) {
           continue;
         }
         cr_agt->add_worker( _wrk_agents[ cr_agt->get_var_id ( ii ) ].second );

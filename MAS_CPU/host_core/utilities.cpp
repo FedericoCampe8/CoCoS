@@ -25,11 +25,14 @@ Utilities::set_search_labeling_strategies () {
       if ( gh_params.mas_des[ i ].search_strategy == montecarlo ) {
         
         for ( int j = 0; j < gh_params.mas_des[ i ].vars_list.size(); j++ ) {
-          /// Skip tails
-          if ( (gh_params.mas_des[ i ].vars_list[ j ] == 0) ||
-              (gh_params.mas_des[ i ].vars_list[ j ] == (gh_params.n_res-1)) ) {
-            continue;
+          /// Skip tails for ab-initio prediction
+          if ( gh_params.sys_job == ab_initio ) {
+            if ( (gh_params.mas_des[ i ].vars_list[ j ] == 0) ||
+               (gh_params.mas_des[ i ].vars_list[ j ] == (gh_params.n_res-1)) ) {
+                continue;
+            }
           }
+          
           shuffle.push_back ( gh_params.mas_des[ i ].vars_list[ j ] );
         }
         for ( int j = 0; j < gh_params.mas_des[ i ].vars_list.size(); j++ ) {
@@ -158,6 +161,22 @@ Utilities::set_centroid_constraint () {
   }
   cout << "CG constraint set... \n";
 }//set_centroid_constraint
+
+void
+Utilities::set_atom_grid_constraint () {
+  /// Set all distant constraint
+  vector<int> coeff ( gh_params.n_res + 2, 0 );
+  for ( int i = 0; i < gh_params.mas_des.size(); i++ ) {
+    coeff[ gh_params.n_res + 1 ] = structure;
+    if ( gh_params.mas_des[ i ].agt_type == coordinator ) {
+      coeff[ gh_params.n_res ]     = 1;
+      coeff[ gh_params.n_res + 1 ] = coordinator;
+    }
+    g_constraints.push_back ( new Constraint ( c_atom_grid, gh_params.mas_des[ i ].vars_list, coeff, 1 ) );
+    coeff.assign( gh_params.n_res + 2, 0 );
+  }//i
+  cout << "Atom_Grid constraint set... \n";
+}//set_atom_grid_constraint
 
 /***************************************
  *           Conversion tools          *

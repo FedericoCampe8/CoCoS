@@ -62,6 +62,10 @@ int main ( int argc, char* argv[] ) {
   if ( gh_params.centroid ) {
     set_centroid_constraint();
   }
+  /// CONSTRAINT: ATOM_GRID
+  if ( gh_params.atom_grid ) {
+    set_atom_grid_constraint();
+  }
   /// Alloc constraints
   i_data.alloc_constraints();
 

@@ -19,7 +19,7 @@ _know_prot        ( false ),
 _in_file          ( "" ),
 _out_file         ( "" ),
 _known_prot_file  ( "" ),
-_target_prot_file ( "" ) ,
+_target_prot_file ( "" ),
 _target_sequence  ( "" ),
 _energy_charges   ( "" ),
 _lj_params        ( "" ),
@@ -29,26 +29,11 @@ _contact_params   ( "" ),
 _tors_params      ( "" ),
 _angles_file      ( "" ) {
   //Default values
-  gh_params.gibbs_as_default  = false;
-  gh_params.follow_rmsd       = false;
-  gh_params.verbose           = false;
-  gh_params.centroid          = false;
-  gh_params.translate_str     = false;
-  gh_params.translate_str_fnl = false;
-  gh_params.atom_grid         = false;
-  gh_params.n_gibbs_samples   = -1;
-  gh_params.timer             = -1;
-  gh_params.n_coordinators    = 1;
-  gh_params.set_size          = MAX_GIBBS_SET_SIZE;
-  gh_params.translation_point[ 1 ]    = 0;
-  gh_params.translation_point[ 2 ]    = 0;
-  gh_params.translation_point[ 3 ]    = 0;
-  gh_params.n_gibbs_iters_before_swap = 0;
-
+  set_default_values ();
   // Process input
   int c;
   bool auto_allign = false;
-  while ( (c = getopt(argc, argv, "i:o:c:g:t:srhveaql")) != -1 ) {
+  while ( (c = getopt(argc, argv, "i:o:c:g:t:srhveaqlk")) != -1 ) {
     switch ( c ) {
       case 'i':
         /// Input file name
@@ -65,6 +50,10 @@ _angles_file      ( "" ) {
       case 'r':
         /// Use RMSD ad objective function
         gh_params.follow_rmsd = true;
+        break;
+      case 'k':
+        /// Use RMSD ad objective function
+        gh_params.sys_job = docking;
         break;
       case 'q':
         /// Use RMSD ad objective function
@@ -137,6 +126,26 @@ _angles_file      ( "" ) {
 
 Input_data::~Input_data () {
 }//-
+
+void
+Input_data::set_default_values () {
+  gh_params.sys_job           = ab_initio;
+  gh_params.gibbs_as_default  = false;
+  gh_params.follow_rmsd       = false;
+  gh_params.verbose           = false;
+  gh_params.centroid          = false;
+  gh_params.translate_str     = false;
+  gh_params.translate_str_fnl = false;
+  gh_params.atom_grid         = false;
+  gh_params.n_gibbs_samples   = -1;
+  gh_params.timer             = -1;
+  gh_params.n_coordinators    = 1;
+  gh_params.set_size          = MAX_GIBBS_SET_SIZE;
+  gh_params.translation_point[ 1 ]    = 0;
+  gh_params.translation_point[ 2 ]    = 0;
+  gh_params.translation_point[ 3 ]    = 0;
+  gh_params.n_gibbs_iters_before_swap = 0;
+}//set_default_values
 
 void
 Input_data::clear_data () {
@@ -1217,7 +1226,7 @@ Input_data::dump () {
 
 void
 Input_data::print_help () {
-  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-r] [-q] [-v] [-l] [-h]\n" << endl;
+  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-k] [-r] [-q] [-v] [-l] [-h]\n" << endl;
   cout << "Options for Cocos:\n";
   cout << "\t" << "-i (string)\n";
   cout << "\t\t" << "set input\n";
@@ -1231,6 +1240,8 @@ Input_data::print_help () {
   cout << "\t\t" << "Automagically create an input file for cocos from FASTA sequence\n";
   cout << "\t" << "-e\n";
   cout << "\t\t" << "Enable CG constraint\n";
+  cout << "\t" << "-k\n";
+  cout << "\t\t" << "Perform Docking\n";
   cout << "\t" << "-r\n";
   cout << "\t\t" << "set RMSD as objective function\n";
   cout << "\t" << "-q\n";

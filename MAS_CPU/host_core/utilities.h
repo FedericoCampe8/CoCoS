@@ -12,6 +12,8 @@ namespace Utilities{
   void set_all_distant_constraint ();
   void set_distance_constraint ();
   void set_centroid_constraint ();
+  void set_atom_grid_constraint ();
+  
   /***************************************
    *           Conversion tools          *
    ***************************************/
