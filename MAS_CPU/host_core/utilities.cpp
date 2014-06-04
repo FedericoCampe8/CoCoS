@@ -738,8 +738,8 @@ Utilities::translate_structure ( real* structure, int reference, real x, real y,
   z -= structure[ reference*3 + 2 ];
   for (int i = 0; i < length; i++) {
     structure[ i*3 + 0 ] += x;
-    structure[ i*3 + 0 ] += x;
-    structure[ i*3 + 0 ] += x;
+    structure[ i*3 + 1 ] += y;
+    structure[ i*3 + 2 ] += z;
   }//i
 }//translate_structure
 

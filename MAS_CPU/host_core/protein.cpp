@@ -121,14 +121,15 @@ Protein::load_protein ( string filename, string chain ) {
   }
   
   // Handle Error
-  /*
+  
   if ( (_tertiary.size() <= _nres*( 5-1 ) || _tertiary.size() > _nres*5) && _is_h_defined ) {
     for ( uint i = 0; i < _tertiary.size(); i++ ) _tertiary.at( i ).dump();
     cout << endl;
     cout << "nres " << _nres << " tert.size " << _tertiary.size() << endl;
     cout << "4*nres " << _nres*5 << endl;
+    getchar();
   }
-  */
+  
   
   // Clear last and first atoms differnt from O and N respectively 
   if ( (_tertiary.size() <= _nres*(5-1) || _tertiary.size() > _nres*5) && _is_h_defined ) {
@@ -205,8 +206,9 @@ Protein::get_sequence_code () {
 real
 Protein::get_minium_energy () {
   
-  real* plain_str = (real*) malloc ( _nres * 15 * sizeof(real) );
-  for ( int i = 0; i < _nres * 5; i++ ) {
+  real* plain_str = (real*) calloc ( _nres * 15, sizeof(real) );
+  
+  for ( int i = 0; i < _tertiary.size(); i++ ) {
     plain_str[ 3*i + 0 ] = _tertiary[ i ][ 0 ];
     plain_str[ 3*i + 1 ] = _tertiary[ i ][ 1 ];
     plain_str[ 3*i + 2 ] = _tertiary[ i ][ 2 ];

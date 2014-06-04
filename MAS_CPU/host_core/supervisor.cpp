@@ -104,7 +104,7 @@ Supervisor::set_agents () {
 void
 Supervisor::search() {
   Utilities::print_debug ( _dbg, "Starting search..." );
-
+  
   int agt_counter=0;
   while( agt_counter < _n_mas_agents ) {
     for ( int i = 0; i < _n_mas_agents; i++) {
@@ -166,8 +166,9 @@ Supervisor::search() {
     }//i
   }
   
-  /// Print solution
-  g_logicvars.print_point_variables();
+  /// Print solution for Ab-Inito prediction
+  if ( gh_params.sys_job == ab_initio )
+    g_logicvars.print_point_variables();
   
   Utilities::print_debug ( _dbg, "End search" );
 }//search

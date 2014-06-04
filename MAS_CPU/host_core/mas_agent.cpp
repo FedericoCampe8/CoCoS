@@ -305,17 +305,17 @@ MasAgent::dump_general_info () {
 void
 MasAgent::search_alloc ( int max_beam_size ) {
   Utilities::print_debug ( _dbg, "Search alloc" );
-  gd_params.all_domains = (real*) malloc ( (_n_res + (2 * _sum_dom_size)) * sizeof(real) );
-  gd_params.all_domains_idx = (int*) malloc ( _n_res * sizeof(int) );
-  gd_params.curr_str = (real*) malloc ( _n_points * sizeof(real) );
-  gd_params.beam_str = (real*) malloc (   gh_params.set_size * _n_points * sizeof(real)  );
+  gd_params.all_domains     = (real*) calloc ( (_n_res + (2 * _sum_dom_size)), sizeof(real) );
+  gd_params.all_domains_idx = (int*) calloc ( _n_res,  sizeof(int) );
+  gd_params.curr_str = (real*) calloc ( _n_points, sizeof(real) );
+  gd_params.beam_str = (real*) calloc (   gh_params.set_size * _n_points, sizeof(real)  );
   gd_params.beam_energies = (real*) malloc( gh_params.set_size * sizeof(real) );
 }//search_alloc
 
 void
 MasAgent::search_init () {
   Utilities::print_debug ( _dbg, "Search init" );
-  real* all_doms       = (real*) malloc ( (_n_res + (2 * _sum_dom_size)) * sizeof (real) );
+  real* all_doms       = (real*) calloc ( (_n_res + (2 * _sum_dom_size)), sizeof (real) );
   int* all_domains_idx = (int*)  calloc ( _n_res, sizeof (int) );
   
   WorkerAgent* curr_wrk;

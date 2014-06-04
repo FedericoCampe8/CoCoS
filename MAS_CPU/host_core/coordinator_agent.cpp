@@ -2,6 +2,7 @@
 #include "search_engine.h"
 #include "icm.h"
 #include "gibbs.h"
+#include "docking.h"
 #include "montecarlo.h"
 #include "worker_agent.h"
 #include "logic_variables.h"
@@ -18,19 +19,25 @@ CoordinatorAgent::CoordinatorAgent ( MasAgentDes description, int prot_len ) :
    _energy_weights[ 1 ] = gh_params.crd_weights[ 1 ];
    _energy_weights[ 2 ] = gh_params.crd_weights[ 2 ];
    /// Set search strategy
-   switch ( _search_strategy ) {
-     case icm:
-       _search_engine = new ICM ( this );
-       break;
-     case gibbs:
-       _search_engine = new GIBBS ( this );
-       break;
-     case montecarlo:
-       _search_engine = new MONTECARLO ( this );
-       break;
-     default:
-       _search_engine = new MONTECARLO ( this );
-       break;
+   if ( gh_params.sys_job == ab_initio ) {
+     switch ( _search_strategy ) {
+       case icm:
+         _search_engine = new ICM ( this );
+         break;
+       case gibbs:
+         _search_engine = new GIBBS ( this );
+         break;
+       case montecarlo:
+         _search_engine = new MONTECARLO ( this );
+         break;
+       default:
+         _search_engine = new MONTECARLO ( this );
+         break;
+     }
+   }
+   else {
+     _search_engine = new DOCKING ( this );
+     (static_cast<DOCKING *>(_search_engine))->set_parameters ( 13.9, -10.6, -17.8, 20 );
    }
    
    string print_scope = "Created on\n[";

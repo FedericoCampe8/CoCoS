@@ -62,7 +62,7 @@ CCOPT   += -m64 -DIL_STD
 ## use -ftz=false -prec-div=true -prec-sqrt=true
 ## -L /usr/local/cuda/lib -lcurand
 ## –use_fast_math
-CCOPT += -O3 
+CCOPT += -O3 -std=c++0x 
 LINKOPT += -gx
 
 PROFOPT = -pg -O2 -DNDEBUG

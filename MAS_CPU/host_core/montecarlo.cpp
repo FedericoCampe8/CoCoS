@@ -94,15 +94,7 @@ MONTECARLO::reset () {
     memset ( _labeled_vars, false, _n_vars * sizeof(bool) );
   }
   /// Set Current Structure
-  memcpy(gd_params.curr_str, start_structure,gh_params.n_points * sizeof(real));
-  
-  vector<int> id_res;
-  for (;_wrks_it!=_wrks->end(); ++_wrks_it) {
-    id_res.push_back( _wrks_it->first );
-    //cout << "AGT " << _wrks_it->first << endl;
-  }
-  _wrks_it = _wrks->begin();
-  id_res.clear();
+  memcpy( gd_params.curr_str, start_structure,gh_params.n_points * sizeof(real) );
 }//reset
 
 WorkerAgent*
@@ -155,6 +147,7 @@ MONTECARLO::search () {
   bool unleash_temperature = false, try_again = true /*, cool_it_down = true*/;
   real diff_on_sols, param, fractpart, int_part, previous_int_par = 100000000.0;
   real prev_energy = MAX_ENERGY;
+
   do {
     reset_iteration ();
     WorkerAgent* w;
@@ -169,7 +162,7 @@ MONTECARLO::search () {
       choose_label( w );
       /// Check timer
       if ( gh_params.timer >= 0 ) {
-        gettimeofday(&time_stats, NULL);
+        gettimeofday( &time_stats, NULL );
         total_time = time_stats.tv_sec + (time_stats.tv_usec/1000000.0) - time_start;
         /// Exit for timeout
         if ( total_time > gh_params.timer ) {
@@ -249,15 +242,19 @@ MONTECARLO::search () {
 
   
   /// Take the best structure among all possible samplings
-  if (  _glb_current_minimum < _local_minimum ) {
-    cout << _dbg << "Solution with value: " <<
-    _glb_current_minimum << " instead of " <<
-    _local_minimum << endl;
+  if ( _glb_current_minimum < _local_minimum ) {
+    
+    if ( gh_params.verbose ) {
+      cout << _dbg << "Solution with value: " <<
+      _glb_current_minimum << " instead of " <<
+      _local_minimum << endl;
+    }
+    
     _local_minimum = _glb_current_minimum;
     memcpy ( gd_params.curr_str, _glb_best_str,
              gh_params.n_points * sizeof( real ) );
   }
-  
+
 #ifdef MONTECARLO_DEBUG
   cout << _dbg << "End search\n";
 #endif

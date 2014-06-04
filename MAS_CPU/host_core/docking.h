@@ -15,14 +15,19 @@ private:
   real _center_z;
   real _radius; // Angstrom
   real _side;
-  int  _oc_tree_height;
-  int  _oc_tree_side;
+  real _oc_tree_height;
+  real _oc_tree_side;
+  std::vector <  std::vector < real > > _centers_coords;
+  /// Energy value
+  real _energy_value;
   
 public:
   DOCKING ( MasAgent* mas_agt );
   ~DOCKING ();
   void search ();
   
+  /// Set the parameters for the centroid of the cube to subdivide as an oc_tree
+  void set_parameters ( std::vector <  std::vector < real > >& coords );
   void set_parameters ( real x, real y, real z, real radius, real height = 4 );
 };
 
