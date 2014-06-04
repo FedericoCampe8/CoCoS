@@ -34,6 +34,7 @@ private:
   void read_energy_parameters ( std::string file_name, std::vector< std::vector<real> >& );
   void read_torsional_parameters ( std::string file_name, real tors_param[20][20][20][3] );
   /// Utilities
+  void ask_for_seeds ();
   void set_default_values ();
   void create_input_file ();
   void alloc_states ();

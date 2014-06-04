@@ -37,7 +37,8 @@ CoordinatorAgent::CoordinatorAgent ( MasAgentDes description, int prot_len ) :
    }
    else {
      _search_engine = new DOCKING ( this );
-     (static_cast<DOCKING *>(_search_engine))->set_parameters ( 13.9, -10.6, -17.8, 20 );
+     //(static_cast<DOCKING *>(_search_engine))->set_parameters ( 13.9, -10.6, -17.8, 20 );
+     (static_cast<DOCKING *>(_search_engine))->set_parameters ( gh_params.seed_coords );
    }
    
    string print_scope = "Created on\n[";

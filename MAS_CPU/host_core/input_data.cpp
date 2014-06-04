@@ -107,9 +107,16 @@ _angles_file      ( "" ) {
     create_input_file ();
     _in_file = "alignment.txt";
   }
+  
 #ifdef CALCULATE_WEIGHTS
   read_from_prot ();
 #endif
+  
+  /// Read seeds for docking from user
+  if ( gh_params.sys_job == docking ) {
+    ask_for_seeds ();
+  }
+  /// Read input file
   read_file ();
   /// Init data
   init_data ();
@@ -122,10 +129,56 @@ _angles_file      ( "" ) {
     cout << gh_params.known_protein->get_nres() << endl;
 #endif
   }
+  
 }//-
 
 Input_data::~Input_data () {
 }//-
+
+void
+Input_data::ask_for_seeds () {
+  cout << "Input_data::Docking - Please insert:\n";
+  cout << "x y z r h\n";
+  cout << "where\n";
+  cout << "x (real): x seed's coordinate\n";
+  cout << "y (real): y seed's coordinate\n";
+  cout << "z (real): z seed's coordinate\n";
+  cout << "r (real): half diagonale of the cube centered in (x, y, z)\n";
+  cout << "h (int) : height of the octree (i.e., number of partitions)\n";
+  cout << "Press Enter to insert a new seed.\n";
+  cout << "Write \"remove\" to remove the last inserted seed or \"done\" to exit.\n";
+  
+  /// Read input from user
+  string line = "";
+  vector < real > coords;
+  /// Start reading input from user
+  getline ( cin, line );
+  while ( line.compare( "done" ) != 0 ) {
+    if ( (line.compare( "remove" ) == 0) &&
+         (gh_params.seed_coords.size() > 0) ) {
+      gh_params.seed_coords.pop_back();
+    }
+    else {
+      stringstream stream( line );
+      real n;
+      int parsed_val = 0;
+      while( 1 ) {
+        stream >> n;
+        parsed_val++;
+        if( (!stream) || (parsed_val > 5) ) break;
+        coords.push_back( n );
+      }
+      gh_params.seed_coords.push_back( coords );
+      coords.clear();
+    }
+    getline ( cin, line );
+  }
+  /// User error check
+  if ( gh_params.seed_coords.size() == 0 ) {
+    cout << "Please, insert at least one seed!\n";
+    exit( 2 );
+  }
+}//ask_for_seeds
 
 void
 Input_data::set_default_values () {

@@ -20,14 +20,13 @@ private:
   std::vector <  std::vector < real > > _centers_coords;
   /// Energy value
   real _energy_value;
-  
 public:
   DOCKING ( MasAgent* mas_agt );
   ~DOCKING ();
   void search ();
   
   /// Set the parameters for the centroid of the cube to subdivide as an oc_tree
-  void set_parameters ( std::vector <  std::vector < real > >& coords );
+  void set_parameters ( std::vector < std::vector < real > >& coords );
   void set_parameters ( real x, real y, real z, real radius, real height = 4 );
 };
 

@@ -71,6 +71,7 @@ typedef struct {
   int       n_gibbs_iters_before_swap;
   int       timer;
   double    translation_point[4];
+  std::vector < std::vector<real> > seed_coords;
   /// Output options
   std::string output_file;
   /// Variables and domains
