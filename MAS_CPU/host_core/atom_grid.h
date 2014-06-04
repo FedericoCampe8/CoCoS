@@ -21,6 +21,7 @@ class AtomGrid {
   static const int GRID_SIDE = 3; // the grid side (in Angstrom)
   static const int GRID_EDGE = 128;
   
+  int _epsilon;
   int _grid_max_dist;
 
   // Converts cell coordinates to linear index
@@ -30,7 +31,7 @@ class AtomGrid {
  public:
   std::vector<AtomGridCell> space;
   
-  AtomGrid ( int maxdist = 1 );
+  AtomGrid ( int maxdist = 1, real epsilon = 0.3 );
   ~AtomGrid() {};
   AtomGrid (const AtomGrid& other);
   AtomGrid& operator= (const AtomGrid& other);

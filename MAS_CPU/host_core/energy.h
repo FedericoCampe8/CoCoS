@@ -18,6 +18,11 @@ void get_energy ( real* beam_str, real* beam_energies,
                   int bb_start, int bb_end, int n_res, int scope_start, int scope_end,
                   int n_bytes, int n_blocks, int n_threads );
 
+void get_contacts ( real* beam_str, real* beam_energies,
+                    real* validity_solutions,
+                    int bb_start, int bb_end, int n_res, int scope_start, int scope_end,
+                    int n_bytes, int n_blocks, int n_threads );
+
 void hydrogen_energy ( real * structure, real * h_values,
                       real * h_distances, real * h_angles,
                       ss_type* secondary_s_info,

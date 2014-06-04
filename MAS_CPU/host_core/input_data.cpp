@@ -182,6 +182,8 @@ Input_data::ask_for_seeds () {
 
 void
 Input_data::set_default_values () {
+  g_docking                   = nullptr;
+  g_atom_grid                 = nullptr;
   gh_params.sys_job           = ab_initio;
   gh_params.gibbs_as_default  = false;
   gh_params.follow_rmsd       = false;
@@ -492,6 +494,15 @@ Input_data::read_file () {
         gh_params.atom_grid = true;
         g_atom_grid = new AtomGrid ( 1 );
         g_atom_grid->fill_grid ( _atom_grid_file );
+      }
+      else if (line.compare( 0, 7, "DOCKING" ) == 0 ) {
+        size_t found = (line.substr( 7, line.size() )).find_first_not_of(" ");
+        found += 7;
+        string docking_file = line.substr(found, line.size() - found);
+        /// -3 Angstrom: if two atoms are less than 3 angstrom (but not clash)
+        /// then there is a contact (i.e., atom_grid returns false)
+        g_docking = new AtomGrid ( 1, -3 );
+        g_docking->fill_grid ( docking_file );
       }
       /// Secondary Structure Descriptions, Agents, and Priorities
       else if ( line.compare( 0, 2, "H " ) == 0 ||

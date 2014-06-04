@@ -29,8 +29,9 @@ AtomGridCell::operator= (const AtomGridCell& other) {
   return *this;
 }//-
 
-AtomGrid::AtomGrid( int maxdist ) :
-  _grid_max_dist ( maxdist ) {
+AtomGrid::AtomGrid( int maxdist, real epsilon ) :
+  _grid_max_dist ( maxdist ),
+  _epsilon ( epsilon * 100 ){
   space.resize( GRID_EDGE * GRID_EDGE * GRID_EDGE );
 }//-
 
@@ -208,7 +209,6 @@ AtomGrid::query (const point& vp, atom_type type, int ref_aa) {
   << z << " " << " dist " << d << endl;
 #endif
   
-  real EPSILON = 30;
   size_t a = 0;
   size_t idx, natoms;
   real distx, disty, distz, dist, limit;
@@ -243,11 +243,11 @@ AtomGrid::query (const point& vp, atom_type type, int ref_aa) {
               space[idx].atom_list[a].radius;
 	    
             limit = (type == CG || other_type == CG) ? 
-                    ((radius + other_radius) - EPSILON)/2 :
-                    (radius + other_radius) - EPSILON;
+                    ((radius + other_radius) - _epsilon)/2 :
+                    (radius  + other_radius) - _epsilon;
             
             /// If distance is less than the threshold -> fail distance constraint
-            if ( dist*( 100 ) < limit )
+            if ( dist * ( 100 ) < limit )
               return false;
           }
         }

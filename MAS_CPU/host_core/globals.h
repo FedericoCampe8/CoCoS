@@ -136,7 +136,8 @@ extern H_GLB_params gh_params;
 extern D_GLB_params gd_params;
 
 extern LogicVariables g_logicvars;
-extern AtomGrid *     g_atom_grid;
+extern AtomGrid *     g_atom_grid; /// Atom grid constraint
+extern AtomGrid *     g_docking;   /// Dock used for Docking
 extern std::vector < Constraint* > g_constraints;
 
 #endif

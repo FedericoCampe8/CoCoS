@@ -1,6 +1,7 @@
 #include "energy.h"
 #include "utilities.h"
 #include "mathematics.h"
+#include "atom_grid.h"
 
 //#define ENERGY_DEBUG
 //#define H_DEBUG
@@ -71,17 +72,7 @@ get_energy ( real* beam_str, real* beam_energies,
       contact_component_value     * contact_w  +
       correlation_component_value * correlation_w ;
       beam_energies[ blockIdx ] *= validity_solutions[ blockIdx ];
-      
-      /*
-      cout << hydrogen_component_value << "," <<
-      contact_component_value << "," <<
-      correlation_component_value << ",";
-      */
-      //cout << "ENERGY VALUES:\n";
-      //cout << "\tH  : " << hydrogen_component_value    << endl;
-      //cout << "\tC  : " << contact_component_value     << endl;
-      //cout << "\tT  : " << correlation_component_value << endl;
-      //cout << "\tToT: " << beam_energies[ blockIdx ]   << endl;
+
 #ifdef ENERGY_DEBUG
       if ( hydrogen_w == 8 && blockIdx < 10 ) {
         printf ( "B %d out of %d Energy Values H %f, CG %f, CR %f SUM %f \n",
@@ -97,6 +88,46 @@ get_energy ( real* beam_str, real* beam_energies,
     }
   }//blockIdx
 }//energy
+
+void
+get_contacts ( real* beam_str, real* beam_energies,
+               real* validity_solutions,
+               int bb_start, int bb_end,
+               int n_res, int scope_start, int scope_end,
+               int n_bytes, int n_blocks, int n_threads ) {
+  
+  real c_values[ n_res ];
+  real * current_structure;
+  /// Valid structure: calculate contacts
+  for ( int blockIdx = 0; blockIdx < n_blocks; blockIdx++ ) {
+    if ( validity_solutions[ blockIdx ] > 0 ) {
+      memset ( c_values, 0, n_res*sizeof(real) );
+      current_structure = &beam_str[ blockIdx * n_res * 15 ];
+      for ( int threadIdx = 0; threadIdx < n_res * 5; threadIdx++ ) {
+        if ( !(g_docking->query ( current_structure[ 3*threadIdx + 0 ],
+                                  current_structure[ 3*threadIdx + 1 ],
+                                  current_structure[ 3*threadIdx + 2 ],
+                                  get_atom_type ( threadIdx ) )) ) {
+          /// Contact
+          c_values[ threadIdx / 5 ] -= 1;
+        }
+      }//threadIdx
+
+      real contact_component_value = 0;
+      for ( int i = scope_start; i <= scope_end; i++ ) {
+        contact_component_value  += c_values[ i ];
+      }
+      
+      beam_energies[ blockIdx ] = contact_component_value;
+      beam_energies[ blockIdx ] *= validity_solutions[ blockIdx ];
+    }
+    else {
+      beam_energies[ blockIdx ] = MAX_ENERGY;
+    }
+  }//blockIdx
+}//get_contacts
+
+
 
 /// Hydrogen energy -> threads [0, (blockDim.x-32)/2)
 void
