@@ -5,6 +5,12 @@ COncurrent system with COnstraints for protein Structure prediction (COCOS).
 This is a Constraint Solver for Protein Structure Prediction (PSP) based on local search strategies.
 We present an approach to the Protein Structure Prediction (PSP) problem that relies on a Multi-Agents System (MAS) perspective, where concurrent agents explore the folding of different parts of a protein. The strength of the approach lies in the agents’ ability to apply different types of knowledge, expressed in the form of declarative constraints, to prune the search space of folding alternatives. We demonstrate the suitability of a General-Purpose Graphical Processing Unit (GPGPU) approach to implement such MAS infrastructure, with significant performance improvements over the sequential implementation and other methods.
 
+New: We're improving the tool to allow the user to perform Docking!!!
+
+Check it out with:
+
+$ ./cocos -i Docking/PeptideDocking.in.cocos -k -v
+
 Software:
 
 1) The CPU version of the MAS tool (C-COCOS).
