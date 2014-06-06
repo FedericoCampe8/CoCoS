@@ -33,7 +33,7 @@ _angles_file      ( "" ) {
   // Process input
   int c;
   bool auto_allign = false;
-  while ( (c = getopt(argc, argv, "i:o:c:g:t:srhveaqlk")) != -1 ) {
+  while ( (c = getopt(argc, argv, "i:o:c:g:t:k:srhveaql")) != -1 ) {
     switch ( c ) {
       case 'i':
         /// Input file name
@@ -54,6 +54,7 @@ _angles_file      ( "" ) {
       case 'k':
         /// Use RMSD ad objective function
         gh_params.sys_job = docking;
+        gh_params.min_n_contacts = atoi ( optarg );
         break;
       case 'q':
         /// Use RMSD ad objective function
@@ -115,6 +116,9 @@ _angles_file      ( "" ) {
   /// Read seeds for docking from user
   if ( gh_params.sys_job == docking ) {
     ask_for_seeds ();
+    if ( gh_params.min_n_contacts == -1 ) {
+      gh_params.min_n_contacts = 4;
+    }
   }
   /// Read input file
   read_file ();
@@ -137,6 +141,15 @@ Input_data::~Input_data () {
 
 void
 Input_data::ask_for_seeds () {
+  vector < real > coords_aux;
+  coords_aux.push_back( 13.9 );
+  coords_aux.push_back( -10.6 );
+  coords_aux.push_back( -17.8 );
+  coords_aux.push_back( 20 );
+  coords_aux.push_back( 4 );
+  gh_params.seed_coords.push_back( coords_aux );
+  return;
+  
   cout << "Input_data::Docking - Please insert:\n";
   cout << "x y z r h\n";
   cout << "where\n";
@@ -165,8 +178,11 @@ Input_data::ask_for_seeds () {
       while( 1 ) {
         stream >> n;
         parsed_val++;
-        if( (!stream) || (parsed_val > 5) ) break;
+        if( (!stream) || (parsed_val >= 5) ) break;
         coords.push_back( n );
+      }
+      if ( parsed_val == 5 ) {
+        coords.push_back( 4 );
       }
       gh_params.seed_coords.push_back( coords );
       coords.clear();
@@ -194,12 +210,14 @@ Input_data::set_default_values () {
   gh_params.atom_grid         = false;
   gh_params.n_gibbs_samples   = -1;
   gh_params.timer             = -1;
+  gh_params.min_n_contacts    = -1;
   gh_params.n_coordinators    = 1;
-  gh_params.set_size          = MAX_GIBBS_SET_SIZE;
+  gh_params.num_models        = 1;
   gh_params.translation_point[ 1 ]    = 0;
   gh_params.translation_point[ 2 ]    = 0;
   gh_params.translation_point[ 3 ]    = 0;
   gh_params.n_gibbs_iters_before_swap = 0;
+  gh_params.set_size                  = MAX_GIBBS_SET_SIZE;
 }//set_default_values
 
 void
@@ -1297,7 +1315,7 @@ Input_data::dump () {
 
 void
 Input_data::print_help () {
-  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-k] [-r] [-q] [-v] [-l] [-h]\n" << endl;
+  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-k <int>] [-r] [-q] [-v] [-l] [-h]\n" << endl;
   cout << "Options for Cocos:\n";
   cout << "\t" << "-i (string)\n";
   cout << "\t\t" << "set input\n";
@@ -1311,8 +1329,8 @@ Input_data::print_help () {
   cout << "\t\t" << "Automagically create an input file for cocos from FASTA sequence\n";
   cout << "\t" << "-e\n";
   cout << "\t\t" << "Enable CG constraint\n";
-  cout << "\t" << "-k\n";
-  cout << "\t\t" << "Perform Docking\n";
+  cout << "\t" << "-k (integer) default: 4\n";
+  cout << "\t\t" << "Perform Docking with the specified number of peptide-dock contacts\n";
   cout << "\t" << "-r\n";
   cout << "\t\t" << "set RMSD as objective function\n";
   cout << "\t" << "-q\n";

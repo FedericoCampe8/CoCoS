@@ -1,6 +1,6 @@
 /*********************************************************************
  * This search engine implements a Docking sampling of the
- * search space. DOcking is performed by MonteCarlo sampling.
+ * search space. Docking is performed by MonteCarlo sampling.
  *********************************************************************/
 #ifndef COCOS_DOCKING__
 #define COCOS_DOCKING__
@@ -20,6 +20,9 @@ private:
   std::vector <  std::vector < real > > _centers_coords;
   /// Energy value
   real _energy_value;
+  /// Other and info
+  size_t _n_seeds;
+  size_t _n_total_sols;
 public:
   DOCKING ( MasAgent* mas_agt );
   ~DOCKING ();

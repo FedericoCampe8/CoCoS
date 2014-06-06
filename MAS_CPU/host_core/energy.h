@@ -20,6 +20,7 @@ void get_energy ( real* beam_str, real* beam_energies,
 
 void get_contacts ( real* beam_str, real* beam_energies,
                     real* validity_solutions,
+                    aminoacid * aa_seq,
                     int bb_start, int bb_end, int n_res, int scope_start, int scope_end,
                     int n_bytes, int n_blocks, int n_threads );
 

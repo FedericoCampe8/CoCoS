@@ -46,8 +46,9 @@ class AtomGrid {
   void add ( point p, atom_type t, int atom_idx );
   bool query ( real x, real y, real z );
   bool query ( real x, real y, real z, atom_type type );
+  bool query ( real x, real y, real z, int radius );
   bool query ( const point& vp, atom_type type );
-  bool query ( const point& vp, atom_type type, int ref_aa );
+  bool query ( const point& vp, atom_type type, int ref_aa, int rad = -1 );
   bool query ( const Atom& a );
 };
 #endif

@@ -25,6 +25,7 @@ _iter_counter      ( 0 ),
 _max_iterations    ( 4 ),
 _n_of_restarts     ( 0 ),
 _max_n_restarts    ( 1 ),
+_n_sols            ( 0 ),
 _temperature       ( 100.0 ),
 _decreasing_factor ( 10.0 ),
 _exit_asap         ( false ),
@@ -77,9 +78,15 @@ MONTECARLO::all_ground () const {
   return ( _height >= _n_vars );
 }//is_changed
 
+size_t
+MONTECARLO::get_n_sols () {
+  return _n_sols;
+}//get_n_sol
+
 void
 MONTECARLO::reset () {
   _level         = 0;
+  _n_sols        = 0;
   _n_vars        = _wrks->size();
   _wrks_it       = _wrks->begin();
   _last_wrk_sel  = -1;
@@ -348,6 +355,7 @@ MONTECARLO::choose_label ( WorkerAgent* w ) {
   else {
     get_contacts ( gd_params.beam_str, gd_params.beam_energies,
                    gd_params.validity_solutions,
+                   gd_params.aa_seq,
                    _mas_bb_start, _mas_bb_end,
                    gh_params.n_res, _mas_scope_first, _mas_scope_second,
                    smBytes, n_blocks, n_threads );
@@ -362,13 +370,15 @@ MONTECARLO::choose_label ( WorkerAgent* w ) {
     if( Math::truncate_number( gh_params.beam_energies[ i ] ) < truncated_number ) {
       best_label = i;
       truncated_number = gh_params.beam_energies[ best_label ];
+      if ( gh_params.sys_job == ab_initio ) { _n_sols++; }
     }
     if ( (gh_params.sys_job == docking) &&
-         (Math::truncate_number( gh_params.beam_energies[ i ] ) <= -2) ) {
+         (Math::truncate_number( gh_params.beam_energies[ i ] ) <= -gh_params.min_n_contacts) ) {
+      _n_sols++;
+      /// Set current structure
       g_logicvars.set_point_variables ( &gd_params.beam_str[ i * gh_params.n_points ] );
       /// Print solution
       g_logicvars.print_point_variables();
-      //g_logicvars.set_point_variables ( &gd_params.beam_str[ i * gh_params.n_points ] );
     }
   }
   if ( gh_params.beam_energies[ best_label ] < _local_current_minimum ) {

@@ -11,7 +11,9 @@ using namespace std;
 
 DOCKING::DOCKING ( MasAgent* mas_agt ) :
 MONTECARLO ( mas_agt ),
-_energy_value ( 0 ) {
+_energy_value ( 0 ),
+_n_seeds ( 0 ),
+_n_total_sols ( 0 ) {
   srand ( time( NULL ) );
 }//-
 
@@ -27,12 +29,12 @@ DOCKING::~DOCKING() {
 }//-
 
 void
-DOCKING::set_parameters( std::vector <  std::vector < real > >& coords ) {
+DOCKING::set_parameters ( std::vector <  std::vector < real > >& coords ) {
   _centers_coords = coords;
 }//set_parameters
 
 void
-DOCKING::set_parameters( real x, real y, real z, real radius, real height ) {
+DOCKING::set_parameters ( real x, real y, real z, real radius, real height ) {
   vector < real > coords;
   coords.push_back( x );
   coords.push_back( y );
@@ -45,7 +47,8 @@ DOCKING::set_parameters( real x, real y, real z, real radius, real height ) {
 
 void
 DOCKING::search () {
-  /// Centrare il cubo in diversi punti
+  timeval time_stats;
+  double time_start, total_time;
   int partitions;
   point starting_point;
   for ( auto& coords: _centers_coords ) {
@@ -70,6 +73,12 @@ DOCKING::search () {
     for ( int i = 0; i < partitions; i++ ) {
       for ( int j = 0; j < partitions; j++ ) {
         for ( int z = 0; z < partitions; z++ ) {
+          _n_seeds++;
+          
+          gettimeofday ( &time_stats, NULL );
+          time_start = time_stats.tv_sec + (time_stats.tv_usec/1000000.0);
+          
+          
           /// Reset search to (re)start with MonteCarlo Sampling
           MONTECARLO::reset();
           
@@ -90,17 +99,26 @@ DOCKING::search () {
           /// MonteCarlo sampling for finding new configurations inside the dock
           MONTECARLO::search();
           /// Set minimum and print if an improving structure has been found
-          if ( SearchEngine::get_local_minimum() < _energy_value ) {
-            ///---------------- SET <= WHEN USING CONTACTS ----------------
+          if ( SearchEngine::get_local_minimum() <= _energy_value ) {
             _energy_value = SearchEngine::get_local_minimum();
             /// Set result as global result
             g_logicvars.set_point_variables ( gd_params.curr_str );
             /// Print solution
             g_logicvars.print_point_variables();
           }
+          gettimeofday( &time_stats, NULL );
+          total_time = time_stats.tv_sec + (time_stats.tv_usec/1000000.0) - time_start;
+          if ( gh_params.verbose ) {
+            cout << "#log: DOCKING::search - "
+            << MONTECARLO::get_n_sols() << " solutions in " << total_time << " sec.\n";
+          }
+          _n_total_sols += MONTECARLO::get_n_sols();
         }//z
       }//j
     }//i
   }//coord
-  
+  if ( gh_params.verbose ) {
+    cout << "#log: DOCKING::search - "
+    << "Total of " << _n_seeds << " seeds and " << _n_total_sols << " solutions\n";
+  }
 }//search

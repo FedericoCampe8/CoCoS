@@ -811,8 +811,12 @@ Utilities::output_pdb_format( point* structure, int len, real rmsd ){
   real x, y, z;
   int aa_idx = -1;
   int atom_s = 0, atom_e = len;
-  if ( rmsd >= 0 ) s << "REMARK \t RMSD: " << rmsd << endl;
+  int atom_counter = 0;
+  if ( rmsd > 0 ) s << "REMARK \t RMSD: " << rmsd << endl;
+  s << "MODEL " << gh_params.num_models++ << endl;
   for (int i = atom_s; i < atom_e; i++) {
+    atom_counter++;
+    
     x = structure[i][0];
     y = structure[i][1];
     z = structure[i][2];
@@ -842,13 +846,10 @@ Utilities::output_pdb_format( point* structure, int len, real rmsd ){
     
     s << cv_aa1_to_aa3( gh_params.target_protein->get_sequence()[ aa_idx ] )
     << " A "
-    << setw(3) << get_aaidx_from_bbidx(i, atom_type(i%5))
+    << setw(3) << get_aaidx_from_bbidx(i, atom_type(i%5))+1
     << "    "
     << fixed;
-    //<< get_format_spaces(x) << setprecision(3) << x
-    //<< get_format_spaces(y) << setprecision(3) << y
-    //<< get_format_spaces(z) << setprecision(3) << z
-    //<< "  1.00  1.00\n";
+
     if (fabs(x) >= 100) {
       if (fabs(y) >= 100) {
         if (fabs(z) >= 100) {
@@ -918,6 +919,33 @@ Utilities::output_pdb_format( point* structure, int len, real rmsd ){
       }
     }
   }
+  
+  atom_counter++;
+  
+  int  CG_radius;
+  real my_CG[ 3 ];
+  for ( int i = 0; i < ((len/5) - 2); i++ ) {
+    calculate_cg_atom( cv_aa_to_class ( gh_params.target_protein->get_sequence()[ i+1 ] ),
+                       structure[ i*5 + 1    ],
+                       structure[ (i+1)*5 +1 ],
+                       structure[ (i+2)*5 +1 ],
+                       my_CG, &CG_radius );
+    x = my_CG[ 0 ];
+    y = my_CG[ 1 ];
+    z = my_CG[ 2 ];
+    
+    s<<"ATOM   "
+    <<setw(4)<<atom_counter++
+    <<"  CG  "
+    <<cv_aa1_to_aa3( gh_params.target_protein->get_sequence()[ i+1 ] )
+    <<" A "<<setw(3)<<i+2<<"    "
+    <<fixed
+    <<get_format_spaces(x)<<setprecision(3)<<x
+    <<get_format_spaces(y)<<setprecision(3)<<y
+    <<get_format_spaces(z)<<setprecision(3)<<z
+    <<"  1.00  1.00\n";
+  }//i
+  
   s << "ENDMDL\n";
   return s.str();
 }//print_results
@@ -930,7 +958,7 @@ Utilities::output_pdb_format( real* structure, real rmsd ){
   int aa_idx = -1;
   int atom_s = 0, atom_e = len;
   s << "MODEL 0\n";
-  if ( rmsd >= 0 ) s << "REMARK \t RMSD: " << rmsd << endl;
+  if ( rmsd > 0 ) s << "REMARK \t RMSD: " << rmsd << endl;
   for (int i = atom_s; i < atom_e; i++) {
     x = structure[ 3*i + 0 ];
     y = structure[ 3*i + 1 ];
@@ -964,10 +992,6 @@ Utilities::output_pdb_format( real* structure, real rmsd ){
     << setw(3) << get_aaidx_from_bbidx(i, atom_type(i%5))
     << "    "
     << fixed;
-    //<< get_format_spaces(x) << setprecision(3) << x
-    //<< get_format_spaces(y) << setprecision(3) << y
-    //<< get_format_spaces(z) << setprecision(3) << z
-    //<< "  1.00  1.00\n";
     if (fabs(x) >= 100) {
       if (fabs(y) >= 100) {
         if (fabs(z) >= 100) {

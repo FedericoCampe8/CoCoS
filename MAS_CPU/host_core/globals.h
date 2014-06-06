@@ -73,12 +73,12 @@ typedef struct {
   double    translation_point[4];
   std::vector < std::vector<real> > seed_coords;
   /// Output options
+  size_t    num_models;
   std::string output_file;
   /// Variables and domains
   int n_res;
   int n_points;
   uint * domain_states;
-  //uint * bool_states;
   real * validity_solutions;
   /// Constraints info
   bool atom_grid;
@@ -104,6 +104,8 @@ typedef struct {
   real * tors;
   real * tors_corr;
   real * beam_energies;
+  /// Docking
+  int min_n_contacts;
 } H_GLB_params;
 
 typedef struct {

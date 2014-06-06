@@ -90,15 +90,7 @@ AtomGrid::fill_grid ( std::string path ) {
       ok = 0;
       buf = line.substr( 12, 5 );
       
-      /*
-       * @note:
-       * this is needed in order to avoid
-       * to add more than one atom of the same type
-       * when there are different chains in the same
-       * pdb file.
-       */
-      if ( (Utilities::get_atom_type( buf ) == type) || ( Utilities::get_atom_type( buf ) == last_type ) ) continue;
-      else type = get_atom_type ( buf );
+      type = Utilities::get_atom_type ( line.substr ( line.length() - 5, line.length() ) );
       
       buf = line.substr ( 16, 1 );
       if(buf == " " || buf == "A") { ok = 1; }
@@ -198,7 +190,7 @@ AtomGrid::query ( const Atom& a ) {
 
 //@todo: Investigate on Hash function
 bool
-AtomGrid::query (const point& vp, atom_type type, int ref_aa) {
+AtomGrid::query ( const point& vp, atom_type type, int ref_aa, int rad ) {
   int x = (int)floor ( vp[ 0 ] / GRID_SIDE );
   int y = (int)floor ( vp[ 1 ] / GRID_SIDE );
   int z = (int)floor ( vp[ 2 ] / GRID_SIDE );
@@ -212,7 +204,8 @@ AtomGrid::query (const point& vp, atom_type type, int ref_aa) {
   size_t a = 0;
   size_t idx, natoms;
   real distx, disty, distz, dist, limit;
-  atom_radii radius = Utilities::get_atom_radii (type);
+  int radius = (int) Utilities::get_atom_radii ( type );
+  if ( rad > 0 ) { radius = rad; }
 
   // Look in the neighborhood 
   for ( int i = x-d; i <= x+d; i++ )

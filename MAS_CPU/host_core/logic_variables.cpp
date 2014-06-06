@@ -248,8 +248,6 @@ LogicVariables::print_point_variables ( int start_aa, int end_aa ) {
     cp_structure_aux[ i ][ 2 ] = cp_structure[ i*3 + 2 ];
   }
   
-  
-  
   string out_string = Utilities::output_pdb_format ( cp_structure_aux, len );
   /// Print on std ouput
   if ( gh_params.output_file.compare( "" ) == 0 ) {

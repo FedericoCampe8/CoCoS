@@ -18,5 +18,5 @@ KNOWN_PROT  Docking/PeptideDocking
 % C - coil
 % Constraints
 TRANSLATE O 0 13.9 -10.6 -17.8
-ATOM_GRID Docking/Dock_no_CG.pdb
-DOCKING   Docking/Dock_no_CG.pdb
+ATOM_GRID Docking/Dock.pdb
+DOCKING   Docking/Dock.pdb

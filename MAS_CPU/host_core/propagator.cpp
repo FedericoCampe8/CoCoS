@@ -291,12 +291,12 @@ Propagator::prop_c_atom_grid ( int v_id, int c_id, int c_idx ) {
     n_blocks = gh_params.set_size;
     if ( gd_params.beam_str_upd == NULL ) {
       atom_grd( gd_params.beam_str,
-                gd_params.validity_solutions,
+                gd_params.validity_solutions, gd_params.aa_seq,
                 v_id, n_blocks, n_threads, smBytes);
     }
     else {
       atom_grd( gd_params.beam_str_upd,
-                gd_params.validity_solutions,
+                gd_params.validity_solutions, gd_params.aa_seq,
                 v_id, n_blocks, n_threads, smBytes);
     }
     
@@ -305,7 +305,7 @@ Propagator::prop_c_atom_grid ( int v_id, int c_id, int c_idx ) {
     AminoAcid* aa = g_logicvars.cp_variables[ v_id ];
     n_blocks  = aa->get_domain_size();
     atom_grd( gd_params.beam_str,
-              gd_params.validity_solutions,
+              gd_params.validity_solutions, gd_params.aa_seq,
               v_id, n_blocks, n_threads, smBytes);
     
   }

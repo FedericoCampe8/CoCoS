@@ -92,10 +92,13 @@ get_energy ( real* beam_str, real* beam_energies,
 void
 get_contacts ( real* beam_str, real* beam_energies,
                real* validity_solutions,
+               aminoacid * aa_seq,
                int bb_start, int bb_end,
                int n_res, int scope_start, int scope_end,
                int n_bytes, int n_blocks, int n_threads ) {
   
+  int  CG_radius;
+  real my_CG[ 3 ];
   real c_values[ n_res ];
   real * current_structure;
   /// Valid structure: calculate contacts
@@ -103,6 +106,7 @@ get_contacts ( real* beam_str, real* beam_energies,
     if ( validity_solutions[ blockIdx ] > 0 ) {
       memset ( c_values, 0, n_res*sizeof(real) );
       current_structure = &beam_str[ blockIdx * n_res * 15 ];
+      /// Check contacts for each atom of the backbone --- Backbone
       for ( int threadIdx = 0; threadIdx < n_res * 5; threadIdx++ ) {
         if ( !(g_docking->query ( current_structure[ 3*threadIdx + 0 ],
                                   current_structure[ 3*threadIdx + 1 ],
@@ -112,7 +116,20 @@ get_contacts ( real* beam_str, real* beam_energies,
           c_values[ threadIdx / 5 ] -= 1;
         }
       }//threadIdx
+      /// Check contacts for each atom of the Sidechain --- Sidechain
+      for ( int threadIdx = 0; threadIdx < n_res - 2; threadIdx++ ) {
+        Utilities::calculate_cg_atom( aa_seq [ threadIdx + 1 ],
+                                      &current_structure [ (threadIdx       * 5 + 1)*3 ],
+                                      &current_structure [ ((threadIdx + 1) * 5 + 1)*3 ],
+                                      &current_structure [ ((threadIdx + 2) * 5 + 1)*3 ],
+                                      my_CG, &CG_radius );
+        if ( !g_docking->query( my_CG, CB, -1, CG_radius ) ) {
+          /// Contact
+          c_values[ threadIdx ] -= 1;
+        }
+      }//thr
 
+      
       real contact_component_value = 0;
       for ( int i = scope_start; i <= scope_end; i++ ) {
         contact_component_value  += c_values[ i ];
