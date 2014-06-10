@@ -148,38 +148,12 @@ GIBBS::create_set () {
   n_threads = n_threads*2 + 32;
   
   /// Calculate energies on the (initial) set of structures
-  // int num_of_res = _mas_scope_second - _mas_scope_first + 1;
   _energy_function->calculate_energy ( gd_params.beam_str, gd_params.beam_energies,
                                        gd_params.validity_solutions, gh_params.n_res,
                                        _mas_bb_start, _mas_bb_end,
                                        _mas_scope_first, _mas_scope_second,
                                        smBytes, _set_size, n_threads );
-  
-  /*
-  if (gh_params.follow_rmsd) {
-    int num_of_res = _mas_scope_second - _mas_scope_first + 1;
-    Rmsd_fast::get_rmsd( gd_params.beam_str, gd_params.beam_energies,
-                        gd_params.validity_solutions, gd_params.known_prot,
-                        num_of_res, _mas_scope_first, _mas_scope_second,
-                        _set_size );
-  }
-  else {
-    get_energy( gd_params.beam_str,
-                gd_params.beam_energies,
-                gd_params.validity_solutions,
-                gd_params.secondary_s_info,
-                gd_params.h_distances, gd_params.h_angles,
-                gd_params.contact_params, gd_params.aa_seq,
-                gd_params.tors, gd_params.tors_corr,
-                _energy_weights[ f_hydrogen ],
-                _energy_weights[ f_contact ],
-                _energy_weights[ f_correlation ],
-                _mas_bb_start, _mas_bb_end,
-                gh_params.n_res, _mas_scope_first, _mas_scope_second,
-                smBytes, _set_size, n_threads );//_mas_scope_size
-    
-  }
-   */
+
   /// Copy Energy Values
   memcpy ( gh_params.beam_energies, gd_params.beam_energies, _set_size * sizeof( real ) );
   real truncated_number =  Math::truncate_number( gh_params.beam_energies[ best_label ] );
@@ -292,37 +266,12 @@ GIBBS::Metropolis_Hastings_sampling () {
   n_threads = n_threads*2 + 32;
   
   /// Calculate energies on the updated set of structures
-  ///int num_of_res = _mas_scope_second - _mas_scope_first + 1;
   _energy_function->calculate_energy ( gd_params.beam_str_upd, gd_params.beam_energies,
                                        gd_params.validity_solutions, gh_params.n_res,
                                        _mas_bb_start, _mas_bb_end,
                                        _mas_scope_first, _mas_scope_second,
                                        smBytes, _set_size, n_threads );
-  
-  /*
-  if (gh_params.follow_rmsd) {
-    int num_of_res = _mas_scope_second - _mas_scope_first + 1;
-    Rmsd_fast::get_rmsd( gd_params.beam_str_upd, gd_params.beam_energies,
-                         gd_params.validity_solutions, gd_params.known_prot,
-                         num_of_res, _mas_scope_first, _mas_scope_second,
-                         _set_size );
-  }
-  else {
-    get_energy( gd_params.beam_str_upd,
-                gd_params.beam_energies,
-                gd_params.validity_solutions,
-                gd_params.secondary_s_info,
-                gd_params.h_distances, gd_params.h_angles,
-                gd_params.contact_params, gd_params.aa_seq,
-                gd_params.tors, gd_params.tors_corr,
-                _energy_weights[ f_hydrogen ],
-                _energy_weights[ f_contact ],
-                _energy_weights[ f_correlation ],
-                _mas_bb_start, _mas_bb_end,
-                gh_params.n_res, _mas_scope_first, _mas_scope_second,
-                smBytes, _set_size, n_threads );//_mas_scope_size
-  }
-  */
+
   /// Copy previous energy values
   memcpy ( _beam_energies_aux, gh_params.beam_energies, _set_size * sizeof( real ) );
   /// Copy current states
