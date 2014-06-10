@@ -1,4 +1,5 @@
 #include "search_engine.h"
+#include "energy_factory.h"
 
 SearchEngine::SearchEngine ( MasAgent* mas_agt ) :
 _abort_search      ( false ),
@@ -13,6 +14,18 @@ _wrks_it           ( mas_agt->get_workers()->begin() ) {
   for ( int i = 0; i < en_fields_size; i++ )
     _energy_weights[ i ] = mas_agt->get_energy_weight ( i );
   start_structure = (real* ) calloc ( mas_agt->get_n_points(), sizeof(real) );
+  /// Set energy function
+  if ( gh_params.sys_job == ab_initio ) {
+    if ( gh_params.follow_rmsd ) {
+      _energy_function = EnergyFactory::getEnergyFunction ( EnergyFactory::RmsdEnergy );
+    }
+    else {
+      _energy_function = EnergyFactory::getEnergyFunction ( EnergyFactory::PotentialEnergy, mas_agt->get_agt_type() );
+    }
+  }
+  else {
+    _energy_function = EnergyFactory::getEnergyFunction ( EnergyFactory::ContactEnergy );
+  }
 }//-
 
 SearchEngine::SearchEngine ( const SearchEngine& other ) {
@@ -26,6 +39,7 @@ SearchEngine::SearchEngine ( const SearchEngine& other ) {
   for ( int i = 0; i < en_fields_size; i++ )
     _energy_weights[ i ] = other._energy_weights[ i ];
   start_structure = (real* ) calloc ( MAX_TARGET_SIZE*15, sizeof(real) );
+  delete _energy_function;
 }//-
 
 SearchEngine::~SearchEngine() {

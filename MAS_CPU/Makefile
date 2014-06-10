@@ -13,6 +13,11 @@ HEADERS_CORE=atom.h\
 	protein.h\
 	globals.h\
 	input_data.h\
+	energy.h\
+	energy_factory.h\
+	potential_energy.h\
+	rmsd_energy.h\
+	contact_energy.h\
 	mathematics.h\
 	utilities.h\
 	supervisor.h\
@@ -33,7 +38,6 @@ HEADERS_CORE=atom.h\
 	all_distant.h\
 	centroid.h\
 	distance.h\
-	energy.h\
 	gibbs.h\
 	k_angle_shuffle.h\
 	k_rang.h\

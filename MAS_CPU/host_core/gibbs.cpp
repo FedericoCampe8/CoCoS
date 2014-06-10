@@ -148,6 +148,14 @@ GIBBS::create_set () {
   n_threads = n_threads*2 + 32;
   
   /// Calculate energies on the (initial) set of structures
+  // int num_of_res = _mas_scope_second - _mas_scope_first + 1;
+  _energy_function->calculate_energy ( gd_params.beam_str, gd_params.beam_energies,
+                                       gd_params.validity_solutions, gh_params.n_res,
+                                       _mas_bb_start, _mas_bb_end,
+                                       _mas_scope_first, _mas_scope_second,
+                                       smBytes, _set_size, n_threads );
+  
+  /*
   if (gh_params.follow_rmsd) {
     int num_of_res = _mas_scope_second - _mas_scope_first + 1;
     Rmsd_fast::get_rmsd( gd_params.beam_str, gd_params.beam_energies,
@@ -169,7 +177,9 @@ GIBBS::create_set () {
                 _mas_bb_start, _mas_bb_end,
                 gh_params.n_res, _mas_scope_first, _mas_scope_second,
                 smBytes, _set_size, n_threads );//_mas_scope_size
+    
   }
+   */
   /// Copy Energy Values
   memcpy ( gh_params.beam_energies, gd_params.beam_energies, _set_size * sizeof( real ) );
   real truncated_number =  Math::truncate_number( gh_params.beam_energies[ best_label ] );
@@ -280,7 +290,16 @@ GIBBS::Metropolis_Hastings_sampling () {
   int smBytes    = ( gh_params.n_points + 2 * gh_params.n_res ) * sizeof( real );
   while ( n_threads < gh_params.n_res ) n_threads += 32;
   n_threads = n_threads*2 + 32;
+  
   /// Calculate energies on the updated set of structures
+  ///int num_of_res = _mas_scope_second - _mas_scope_first + 1;
+  _energy_function->calculate_energy ( gd_params.beam_str_upd, gd_params.beam_energies,
+                                       gd_params.validity_solutions, gh_params.n_res,
+                                       _mas_bb_start, _mas_bb_end,
+                                       _mas_scope_first, _mas_scope_second,
+                                       smBytes, _set_size, n_threads );
+  
+  /*
   if (gh_params.follow_rmsd) {
     int num_of_res = _mas_scope_second - _mas_scope_first + 1;
     Rmsd_fast::get_rmsd( gd_params.beam_str_upd, gd_params.beam_energies,
@@ -303,7 +322,7 @@ GIBBS::Metropolis_Hastings_sampling () {
                 gh_params.n_res, _mas_scope_first, _mas_scope_second,
                 smBytes, _set_size, n_threads );//_mas_scope_size
   }
-  
+  */
   /// Copy previous energy values
   memcpy ( _beam_energies_aux, gh_params.beam_energies, _set_size * sizeof( real ) );
   /// Copy current states

@@ -222,6 +222,15 @@ ICM::choose_label ( WorkerAgent* w ) {
   " # of blocks " << n_blocks << 
   " # of threads " << n_threads << endl;
 #endif
+  /// Calculate energies on the set of structures
+  // int num_of_res = _mas_scope_second - _mas_scope_first + 1;
+  _energy_function->calculate_energy ( gd_params.beam_str, gd_params.beam_energies,
+                                       gd_params.validity_solutions, gh_params.n_res,
+                                       _mas_bb_start, _mas_bb_end,
+                                       _mas_scope_first, _mas_scope_second,
+                                       smBytes, n_blocks, n_threads );
+  
+  /*
   if ( gh_params.follow_rmsd && false ) {
     int num_of_res = _mas_scope_second - _mas_scope_first + 1;
     Rmsd_fast::get_rmsd( gd_params.beam_str, gd_params.beam_energies,
@@ -243,6 +252,7 @@ ICM::choose_label ( WorkerAgent* w ) {
               gh_params.n_res, _mas_scope_first, _mas_scope_second,
               smBytes, n_blocks, n_threads );
   }
+   */
   /// Copy Energy Values
   memcpy ( gh_params.beam_energies, gd_params.beam_energies, n_blocks * sizeof( real ) );
   

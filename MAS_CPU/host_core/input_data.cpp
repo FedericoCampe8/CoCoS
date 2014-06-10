@@ -702,7 +702,7 @@ Input_data::read_file () {
   }
   
   /// Default values
-  if ( _out_file == "" ) _out_file = "fold.out";
+  //if ( _out_file == "" ) _out_file = "fold.out";
   if ( gh_params.follow_rmsd && (!_know_prot) ) {
     cout << _dbg << "Follow RMSD option not enable: set known protein first\n";
     gh_params.follow_rmsd = false;
@@ -1325,34 +1325,34 @@ void
 Input_data::print_help () {
   string spaces = "        ";
   cout << "Usage: ./cocos -i <infile> [options]\n" << endl;
-  cout << "         Options           |          Description      \n";
-  cout << "========================== | ==========================\n";
-  cout << " --rmsd                    | Use RMSD as obj function.\n";
-  cout << " --auto_allign             | Automatic allignment of\n";
-  cout << "                           | secondary structures.\n";
-  cout << " --cg_constraint           | Set CG constraint.\n";
-  cout << " --gibbs_default           | Use Gibbs as default for\n";
-  cout << "                           | coordinators agents.\n";
-  cout << " --translate               | Translate 2nd atom of\n";
-  cout << "                           | prediction on (0, 0, 0).\n";
-  cout << " -v|--verbose              | Printf verbose info during\n";
-  cout << "                           | computation.\n";
-  cout << " -h|--help                 | Print this help message.\n";
-  cout << " -i|--input      (string)  | Read and set input.\n";
-  cout << " -o|--output     (string)  | Set output file.\n";
-  cout << " -s|--set_size   (integer) | Set size of sampling sets.\n";
-  cout << " -c|--mc_timeout (integer) | Set timeout for \n";
-  cout << "                           | MonteCarlo sampling.\n";
-  cout << " -k|--docking    (integer) | Set minimum number of\n";
-  cout << "                           | contacts for docking.\n";
-  cout << " -g|--gibbs      (integer) | Set number of Gibbs\n";
-  cout << "                           | samples.\n";
-  cout << " -t|--gb_iterations        | Set number of iterations\n";
-  cout << "                 (integer) | before swapping bins in\n";
-  cout << "                           | Gibbs sampling.\n";
-  cout << "========================== | ==========================\n";
+  cout << "          Options           |          Description      \n";
+  cout << "=========================== | ===========================\n";
+  cout << " --rmsd                     | - Use RMSD as obj function.\n";
+  cout << " --auto_allign              | - Automatic allignment of\n";
+  cout << "                            |   secondary structures.\n";
+  cout << " --cg_constraint            | - Set CG constraint.\n";
+  cout << " --gibbs_default            | - Use Gibbs as default for\n";
+  cout << "                            |   coordinators agents.\n";
+  cout << " --translate                | - Translate 2nd atom of\n";
+  cout << "                            |   prediction on (0, 0, 0).\n";
+  cout << " -v|--verbose               | - Printf verbose info\n";
+  cout << "                            |   during computation.\n";
+  cout << " -h|--help                  | - Print this help message.\n";
+  cout << " -i|--input      (string)   | - Read and set input.\n";
+  cout << " -o|--output     (string)   | - Set output file.\n";
+  cout << " -s|--set_size   (integer)  | - Set size of sampling sets.\n";
+  cout << " -c|--mc_timeout (integer)  | - Set timeout for \n";
+  cout << "                            |   MonteCarlo sampling.\n";
+  cout << " -k|--docking    (integer)  | - Set minimum number of\n";
+  cout << "                            |   contacts for docking.\n";
+  cout << " -g|--gibbs      (integer)  | - Set number of Gibbs\n";
+  cout << "                            |   samples.\n";
+  cout << " -t|--gb_iterations         | - Set number of iterations\n";
+  cout << "                 (integer)  |   before swapping bins in\n";
+  cout << "                            |   Gibbs sampling.\n";
+  cout << "=========================== | ===========================\n";
   cout << "You may want to try:\n";
   cout << "\t" << "./cocos -i proteins/1ZDD.in.cocos -v\n";
   cout << "Other examples, input data, and structures are present in the folder \"protein\".\n";
-  cout << "For any question, feel free to write at: campe8@nmsu.edu\n";
+  cout << "For any questions, feel free to write at: campe8@nmsu.edu.\n";
 }//print_help

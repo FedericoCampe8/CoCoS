@@ -5,6 +5,7 @@
 #include "mas_agent.h"
 #include "constraint_store.h"
 #include "worker_agent.h"
+#include "energy.h"
 
 /*
  * SearchEngine: interface for strategies (i.e., search algorithms).
@@ -30,13 +31,15 @@ protected:
   SearchEngine ( MasAgent* mas_agt ) ;
   SearchEngine ( const SearchEngine& );
   
+  /// Energy function: obj function
+  Energy * _energy_function;
 public:
   real * start_structure;
   
   /// Interface
   virtual ~SearchEngine () = 0;
-  virtual void reset () = 0;
-  virtual void search () = 0;
+  virtual void reset    () = 0;
+  virtual void search   () = 0;
   virtual int  choose_label ( WorkerAgent* w ) = 0;
   
   void set_status ( real* status, int n );
