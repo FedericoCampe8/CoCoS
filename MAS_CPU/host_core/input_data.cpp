@@ -8,136 +8,156 @@
 #include "atom.h"
 #include "atom_grid.h"
 
+#include <getopt.h>
+
 //#define INPUT_DATA_DBG
 
 using namespace std;
 using namespace Utilities;
+
+/// Init static variable
+Input_data* Input_data::_instance = nullptr;
 
 Input_data::Input_data ( int argc, char* argv[] ) :
 _dbg              ( "#log: Input_data - " ),
 _know_prot        ( false ),
 _in_file          ( "" ),
 _out_file         ( "" ),
-_known_prot_file  ( "" ),
-_target_prot_file ( "" ),
-_target_sequence  ( "" ),
-_energy_charges   ( "" ),
-_lj_params        ( "" ),
-_h_distances      ( "" ),
-_h_angles         ( "" ),
-_contact_params   ( "" ),
-_tors_params      ( "" ),
-_angles_file      ( "" ) {
-  //Default values
+_target_sequence  ( "" ) {
+  
+  /// Set default values/parameters
   set_default_values ();
-  // Process input
+  
+  /// Read input
   int c;
-  bool auto_allign = false;
-  while ( (c = getopt(argc, argv, "i:o:c:g:t:k:srhveaql")) != -1 ) {
+  int verbose_flag=0,  rmsd_flag=0,  allign_flag=0;
+  int centroid_flag=0, gibbs_flag=0, translate_flag=0;
+  while ( true ) {
+    static struct option long_options[] =
+    {
+      /* These options set a flag. */
+      {"verbose",       no_argument, &verbose_flag,   1}, /// Print verbose during search
+      {"rmsd",          no_argument, &rmsd_flag,      1}, /// Use RMSD as obj function
+      {"auto_allign",   no_argument, &allign_flag,    1}, /// Automatically find sec. structure
+      {"cg_constraint", no_argument, &centroid_flag,  1}, /// Set CGs
+      {"gibbs_default", no_argument, &gibbs_flag,     1}, /// Use Gibbs as default for coordinators agts
+      {"translate",     no_argument, &translate_flag, 1}, /// Translate 2nd atom of final prediction on (0, 0, 0)
+      /* These options don't set a flag.
+         We distinguish them by their indices. */
+      {"help",          no_argument,       0,       'h'}, /// Print a help message
+      {"input",         required_argument, 0,       'i'}, /// Set input file
+      {"output",        required_argument, 0,       'o'}, /// Set output file
+      {"set_size",      required_argument, 0,       's'}, /// Set size of sampling sets
+      {"mc_timeout",    required_argument, 0,       'c'}, /// Set timeout for MonteCarlo sampling
+      {"docking",       required_argument, 0,       'k'}, /// Set minimum number of contacts for docking
+      {"gibbs",         required_argument, 0,       'g'}, /// Set number of Gibbs samples
+      {"gb_iterations", required_argument, 0,       't'}, /// Set number of iterations before swapping bins in Gibbs sampling
+      {0, 0, 0, 0}
+    };
+    
+    /* getopt_long stores the option index here. */
+    int option_index = 0;
+    c = getopt_long (argc, argv, "hvi:o:s:c:k:g:t:",
+                     long_options, &option_index);
+    /* Detect the end of the options. */
+    if ( c == -1 ) break;
+    
     switch ( c ) {
-      case 'i':
-        /// Input file name
-        _in_file = optarg;
-        break;
-      case 'o':
-        /// Output file name (otherwise default one is used)
-        _out_file = optarg;
-        break;
-      case 'c':
-        /// Set clock timer for Montecarlo sampling
-        gh_params.timer = atoi ( optarg );
-        break;
-      case 'r':
-        /// Use RMSD ad objective function
-        gh_params.follow_rmsd = true;
-        break;
-      case 'k':
-        /// Use RMSD ad objective function
-        gh_params.sys_job = docking;
-        gh_params.min_n_contacts = atoi ( optarg );
-        break;
-      case 'q':
-        /// Use RMSD ad objective function
-        gh_params.gibbs_as_default = true;
-        break;
-      case 'g':
-        /// Set number of Gibbs samples
-        gh_params.n_gibbs_samples = atoi ( optarg );
-        break;
-      case 's':
-        /// Set "set" size
-        gh_params.set_size = atoi ( optarg );
-        break;
-      case 't':
-        /// Set iters before swapping bins
-        gh_params.n_gibbs_iters_before_swap = atoi ( optarg );
-        break;
-      case 'l':
-        /// Translate final structure with CA (0 aa) to 0 0 0
-        gh_params.translate_str_fnl = true;
-        break;
-      case 'a':
-        /// Automagically create an input file!
-        auto_allign = true;
-        break;
-      case 'e':
-        /// Automagically create an input file!
-        gh_params.centroid = true;
-        break;
-      case 'v':
-        /// Verbose
-        gh_params.verbose = true;
+      case 0:
+        /* If this option set a flag, do nothing else now. */
+        if ( long_options[ option_index ].flag != 0 )
+          break;
+        printf ( "option %s", long_options[ option_index ].name );
+        if (optarg)
+          printf (" with arg %s", optarg);
+        printf ("\n");
         break;
       case 'h':
-        /// Print help
         print_help();
         exit( 0 );
+      case 'v':
+        verbose_flag = 1;
+        break;
+      case 'i':
+        _in_file  = optarg;
+        break;
+      case 'o':
+        _out_file = optarg;
+        break;
+      case 's':
+        gh_params.set_size = atoi ( optarg );
+        break;
+      case 'c':
+        gh_params.timer    = atoi ( optarg );
+        break;
+      case 'k':
+        gh_params.sys_job         = docking;
+        gh_params.min_n_contacts  = atoi ( optarg );
+        break;
+      case 'g':
+        gh_params.n_gibbs_samples = atoi ( optarg );
+        break;
+      case 't':
+        gh_params.n_gibbs_iters_before_swap = atoi ( optarg );
+        break;
       default:
-        print_help();
         exit( 0 );
-    }
-  }
+    }//switch
+  }//while
   
-  /// Parse and get info from the input file
-  if ( _in_file == "" ) {
-    cout << "Use \"-i\" for input file\n";
-    exit( 0 );
+  /* Instead of reporting ‘--verbose’ as it is encountered,
+     we report the final status resulting from them. */
+  if ( verbose_flag ) {
+    gh_params.verbose = true;
+    puts ("verbose flag is set");
   }
-  
-  if ( auto_allign ) {
+  if ( allign_flag ) {
     create_input_file ();
     _in_file = "alignment.txt";
   }
+  if ( rmsd_flag )      { gh_params.follow_rmsd = true;       }
+  if ( centroid_flag )  { gh_params.centroid = true;          }
+  if ( gibbs_flag )     { gh_params.gibbs_as_default = true;  }
+  if ( translate_flag ) { gh_params.translate_str_fnl = true; }
   
+  /* Print any remaining command line arguments (not options). */
+  if ( optind < argc ) {
+    printf ("non-option ARGV-elements: ");
+    while ( optind < argc )
+      printf ("%s ", argv[ optind++ ]);
+    putchar ('\n');
+  }
+
+  /* Parse and get info from the input file */
+  if ( _in_file == "" ) {
+    print_help();
+    exit( 0 );
+  }
+
 #ifdef CALCULATE_WEIGHTS
   read_from_prot ();
 #endif
   
-  /// Read seeds for docking from user
+  /* Read seeds for docking from user */
   if ( gh_params.sys_job == docking ) {
     ask_for_seeds ();
     if ( gh_params.min_n_contacts == -1 ) {
       gh_params.min_n_contacts = 4;
     }
   }
-  /// Read input file
+  
+  /* Read input file */
   read_file ();
-  /// Init data
+  
+  /* Init data structures */
   init_data ();
-  /// Print Global minimum
+  
+  /* Print Global minimum */
   if ( _know_prot ) {
     cout << _dbg << "Native Protein global minimum: " <<
     gh_params.known_protein->get_minium_energy() << endl;
-#ifdef CALCULATE_WEIGHTS
-    cout << gh_params.known_protein->get_minium_energy() << ",";
-    cout << gh_params.known_protein->get_nres() << endl;
-#endif
   }
-  
-}//-
-
-Input_data::~Input_data () {
-}//-
+}//Input_data
 
 void
 Input_data::ask_for_seeds () {
@@ -156,7 +176,7 @@ Input_data::ask_for_seeds () {
   cout << "x (real): x seed's coordinate\n";
   cout << "y (real): y seed's coordinate\n";
   cout << "z (real): z seed's coordinate\n";
-  cout << "r (real): half diagonale of the cube centered in (x, y, z)\n";
+  cout << "r (real): half diagonal of the cube centered in (x, y, z)\n";
   cout << "h (int) : height of the octree (i.e., number of partitions)\n";
   cout << "Press Enter to insert a new seed.\n";
   cout << "Write \"remove\" to remove the last inserted seed or \"done\" to exit.\n";
@@ -682,7 +702,7 @@ Input_data::read_file () {
   }
   
   /// Default values
-  //if ( _out_file == "" ) _out_file = "fold.out";
+  if ( _out_file == "" ) _out_file = "fold.out";
   if ( gh_params.follow_rmsd && (!_know_prot) ) {
     cout << _dbg << "Follow RMSD option not enable: set known protein first\n";
     gh_params.follow_rmsd = false;
@@ -731,17 +751,6 @@ Input_data::init_data () {
   gh_params.crd_weights[ 0 ] = 8;
   gh_params.crd_weights[ 1 ] = 22;  //25;
   gh_params.crd_weights[ 2 ] = 7;   //3;
-  
-        /*224.576641 + */
-  /*
-  gh_params.str_weights[ 0 ] = 208.257402;
-  gh_params.str_weights[ 1 ] = 1.065979;
-  gh_params.str_weights[ 2 ] = 90.357393;
-  
-  gh_params.crd_weights[ 0 ] = 208.257402;
-  gh_params.crd_weights[ 1 ] = 1.065979;  //25;
-  gh_params.crd_weights[ 2 ] = 90.357393;   //3;
-   */
 
   /// Load Known Protein and Target sequence
   if ( _know_prot && ( _target_sequence.compare( "" ) == 0 ) ) {
@@ -1167,7 +1176,6 @@ Input_data::free_dt () {
     free( gd_params.known_prot );
 }//free_dt
 
-
 void
 Input_data::read_energy_parameters ( string file_name, vector< vector<real> >& param_v ) {
   string line;
@@ -1315,32 +1323,34 @@ Input_data::dump () {
 
 void
 Input_data::print_help () {
-  cout << "usage: ./cocos -i <infile> [-o <outfile>] [-c <int>] [-g <int>] [-a] [-e] [-k <int>] [-r] [-q] [-v] [-l] [-h]\n" << endl;
-  cout << "Options for Cocos:\n";
-  cout << "\t" << "-i (string)\n";
-  cout << "\t\t" << "set input\n";
-  cout << "\t" << "-o (string) default: print on screen\n";
-  cout << "\t\t" << "set output file name\n";
-  cout << "\t" << "-c (integer) default: none\n";
-  cout << "\t\t" << "set timeout (sec.) for Montecarlo sampling\n";
-  cout << "\t" << "-g (integer) default: 10\n";
-  cout << "\t\t" << "set number of samples for Gibbs sampling\n";
-  cout << "\t" << "-a\n";
-  cout << "\t\t" << "Automagically create an input file for cocos from FASTA sequence\n";
-  cout << "\t" << "-e\n";
-  cout << "\t\t" << "Enable CG constraint\n";
-  cout << "\t" << "-k (integer) default: 4\n";
-  cout << "\t\t" << "Perform Docking with the specified number of peptide-dock contacts\n";
-  cout << "\t" << "-r\n";
-  cout << "\t\t" << "set RMSD as objective function\n";
-  cout << "\t" << "-q\n";
-  cout << "\t\t" << "set Gibbs sampling algorithm on all Coordinator agents (default: MonteCarlo)\n";
-  cout << "\t" << "-l\n";
-  cout << "\t\t" << "Translate the final structure with the first CA atom set on (0, 0, 0)\n";
-  cout << "\t" << "-v\n";
-  cout << "\t\t" << "printf verbose info during computation\n";
-  cout << "\t" << "-h\n";
-  cout << "\t\t" << "print this help message\n";
+  string spaces = "        ";
+  cout << "Usage: ./cocos -i <infile> [options]\n" << endl;
+  cout << "         Options           |          Description      \n";
+  cout << "========================== | ==========================\n";
+  cout << " --rmsd                    | Use RMSD as obj function.\n";
+  cout << " --auto_allign             | Automatic allignment of\n";
+  cout << "                           | secondary structures.\n";
+  cout << " --cg_constraint           | Set CG constraint.\n";
+  cout << " --gibbs_default           | Use Gibbs as default for\n";
+  cout << "                           | coordinators agents.\n";
+  cout << " --translate               | Translate 2nd atom of\n";
+  cout << "                           | prediction on (0, 0, 0).\n";
+  cout << " -v|--verbose              | Printf verbose info during\n";
+  cout << "                           | computation.\n";
+  cout << " -h|--help                 | Print this help message.\n";
+  cout << " -i|--input      (string)  | Read and set input.\n";
+  cout << " -o|--output     (string)  | Set output file.\n";
+  cout << " -s|--set_size   (integer) | Set size of sampling sets.\n";
+  cout << " -c|--mc_timeout (integer) | Set timeout for \n";
+  cout << "                           | MonteCarlo sampling.\n";
+  cout << " -k|--docking    (integer) | Set minimum number of\n";
+  cout << "                           | contacts for docking.\n";
+  cout << " -g|--gibbs      (integer) | Set number of Gibbs\n";
+  cout << "                           | samples.\n";
+  cout << " -t|--gb_iterations        | Set number of iterations\n";
+  cout << "                 (integer) | before swapping bins in\n";
+  cout << "                           | Gibbs sampling.\n";
+  cout << "========================== | ==========================\n";
   cout << "You may want to try:\n";
   cout << "\t" << "./cocos -i proteins/1ZDD.in.cocos -v\n";
   cout << "Other examples, input data, and structures are present in the folder \"protein\".\n";

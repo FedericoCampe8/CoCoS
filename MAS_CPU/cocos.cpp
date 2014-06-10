@@ -1,7 +1,7 @@
 /*********************************************************************
  * Authors: Federico Campeotto (campe8@nmsu.edu)                     *
  *                                                                   *
- * (C) Copyright 2012-2013                                           *
+ * (C) Copyright 2013-2014                                           *
  *                                                                   *
  * This file is part of COCOS (COncurrent system with COnstraints    *
  * for protein Structure prediction).                                *
@@ -33,8 +33,7 @@ int main ( int argc, char* argv[] ) {
   /***************************************
    *         INIT DATA STRUCTURES        *
    ***************************************/
-  cout << dbg << "Initialize Data...\n";
-  Input_data i_data( argc, argv );
+  Input_data * i_data = Input_data::get_instance( argc, argv );
   /***************************************
    *           LOGIC VARIABLES           *
    ***************************************/
@@ -67,7 +66,7 @@ int main ( int argc, char* argv[] ) {
     set_atom_grid_constraint();
   }
   /// Alloc constraints
-  i_data.alloc_constraints();
+  i_data->alloc_constraints();
 
   /***************************************
    *               LABELING              *
@@ -96,7 +95,7 @@ int main ( int argc, char* argv[] ) {
    *           CLEAR AND EXIT            *
    ***************************************/
   cout << dbg << "Freeing memory" << endl;
-  i_data.clear_data();
+  i_data->clear_data();
   cout << dbg << "Memory freed." << endl;
   cout << dbg << "Exit from COCOS... \n";
 
