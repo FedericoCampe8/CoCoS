@@ -67,7 +67,7 @@ AtomGrid::fill_grid ( std::string path ) {
 
   ifstream protein_file ( path.c_str() );
   if ( !protein_file.is_open() ) {
-    cout << "AtomGrid - unable to open " << path << endl;
+    cout << "#log: AtomGrid - Unable to open \"" << path << "\"" << endl;
     return;
   }
   
@@ -120,6 +120,8 @@ AtomGrid::fill_grid ( std::string path ) {
       }//ok
     }
   }
+  
+  protein_file.close();
 }//fill_grid
 
 

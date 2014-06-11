@@ -193,35 +193,3 @@ Supervisor::dump() {
   for ( int i = 0; i < _mas_agents.size(); i++)
     _mas_agents[ i ].second->dump();
 }//dump
-
-
-
-
-/*
- _quantum = 5;
- cout << _dbg << "Search (q: " << _quantum << ")\n";
- 
- srand (time(NULL));
- int iRand;
- do {
- iRand = rand() % 8 + 1;
- timeval time_stats;
- double time_start, total_time;
- gettimeofday(&time_stats, NULL);
- time_start = time_stats.tv_sec + (time_stats.tv_usec/1000000.0);
- 
- sleep ( rand() % 5 + 1 );
- //search_engine->search();
- 
- gettimeofday(&time_stats, NULL);
- total_time = time_stats.tv_sec + (time_stats.tv_usec/1000000.0) - time_start;
- cout << _dbg << "Used time: " << total_time << endl;
- } while ( iRand < _quantum );
- 
- int iRand_exit = rand() % 10 + 1;
- if (iRand_exit >= 5) {
- _end_search = true;
- }
- else
- _end_search = false;
- */

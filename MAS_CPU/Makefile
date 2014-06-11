@@ -18,6 +18,7 @@ HEADERS_CORE=atom.h\
 	potential_energy.h\
 	rmsd_energy.h\
 	contact_energy.h\
+	contact_decay_energy.h\
 	mathematics.h\
 	utilities.h\
 	supervisor.h\

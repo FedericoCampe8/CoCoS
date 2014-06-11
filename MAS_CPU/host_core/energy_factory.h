@@ -12,6 +12,7 @@
 #include "potential_energy.h"
 #include "rmsd_energy.h"
 #include "contact_energy.h"
+#include "contact_decay_energy.h"
 
 class EnergyFactory {
 public:
@@ -48,7 +49,11 @@ public:
       case ContactEnergy:
         return ((new ContactEnergy::ContactEnergy())->set_parameters ( gd_params.aa_seq ));
       case ContactDecayEnergy:
-        return ((new ContactEnergy::ContactEnergy())->set_parameters ( gd_params.aa_seq ));
+      {
+        point atom  = { 0, 0, 0 };
+        return ((new ContactDecayEnergy::ContactDecayEnergy())->set_parameters ( gd_params.aa_seq,
+                                                                                 atom, 0 ));
+      }
     }
     throw "Invalid Energy function.";
   }//getEnergyFunction

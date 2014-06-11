@@ -36,7 +36,11 @@ private:
   std::string _atom_grid_file;    // Grid constraint path (list of atoms)
   /// Domains
   void read_file ();
-  void read_from_prot ();
+  void parse_for_docking   ( std::istream& inputFile );
+  void parse_for_ab_initio ( std::istream& inputFile );
+  int  set_database ( std::string line );
+  void set_agents   ( std::string line );
+  void set_dock_constraints ( std::string line );
   void load_angles ();
   void load_angles_aux ();
   /// Energy

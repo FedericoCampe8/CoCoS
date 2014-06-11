@@ -203,7 +203,7 @@ PotentialEnergy::contact_energy_cg  ( real * structure, int first_cg_idx, int se
   real threshold = ( first_cg_radius / 100.0 ) + ( second_cg_radius / 100.0 );
   real cg_cg_distance = Math::eucl_dist( first_atom_cg, second_atom_cg );
   //if (  cg_cg_distance > threshold ) e = (threshold * threshold) / (cg_cg_distance * cg_cg_distance);
-  if (  cg_cg_distance > threshold ) e = ( threshold) / (cg_cg_distance);
+  if (  cg_cg_distance > threshold ) e = ( threshold ) / (cg_cg_distance);
   
   e *= _contact_params[ Utilities::cv_class_to_n( _aa_seq[ first_cg_idx+1 ] ) * 20 +
                         Utilities::cv_class_to_n( _aa_seq[ second_cg_idx+1 ] ) ];
