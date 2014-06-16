@@ -65,6 +65,7 @@ typedef struct {
   bool      verbose;
   real      str_weights[3];
   real      crd_weights[3];
+  real      set_angles;
   int       n_coordinators;
   int       set_size;
   int       n_gibbs_samples;

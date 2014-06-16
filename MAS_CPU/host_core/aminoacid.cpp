@@ -153,16 +153,20 @@ AminoAcid::is_singleton () {
   return _label >= 0 ;
 }//is_singleton
 
-/*
- void
- AminoAcid::trail_back ( TrailVariable& tv ) {
- _assigned = false;
- domain.set_state ( tv.dom_state );
- }//trail_back
- */
-
 void
 AminoAcid::fill_domain ( vector< vector< real > >& angles ) {
+  /// Set domain by partitioning the interval [-180, +180]
+  if ( gh_params.set_angles > -1 ) {
+    real degs = gh_params.set_angles == 0 ? 1 : gh_params.set_angles;
+    set_angles( degs );
+    
+    if ( _domain_values.size() > MAX_DOM_SIZE )
+      _domain_values.resize( MAX_DOM_SIZE );
+    _dom_size = _domain_values.size();
+    
+    return;
+  }
+  /// Set domain by reading the db files
   assert( angles[0].size() == angles[1].size() );
   for (uint i = 0; i < angles[0].size(); i++) {
     if ( _aa_type == helix ) {
@@ -215,6 +219,15 @@ AminoAcid::fill_domain ( vector< vector< real > >& angles ) {
     _domain_values.resize( MAX_DOM_SIZE );
   _dom_size = _domain_values.size();
 }//fill_domain
+
+void
+AminoAcid::set_angles ( real deg ) {
+  for ( int i = -180; i <= 180; i += deg ) {
+    for ( int j = -180; j <= 180; j += deg ) {
+      _domain_values.push_back ( make_pair( i, j ) );
+    }
+  }
+}//set_angles
 
 void
 AminoAcid::fill_backbone () {

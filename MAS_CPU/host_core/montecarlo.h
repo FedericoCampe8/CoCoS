@@ -67,7 +67,6 @@ public:
   
   void search ();
   int choose_label ( WorkerAgent* w );
-//  void update_solution ( int w_id, int label );
   
   void dump_statistics (std::ostream &os = std::cout);
 };

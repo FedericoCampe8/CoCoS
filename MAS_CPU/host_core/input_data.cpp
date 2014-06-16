@@ -47,6 +47,7 @@ _target_sequence  ( "" ) {
       {"help",          no_argument,       0,       'h'}, /// Print a help message
       {"input",         required_argument, 0,       'i'}, /// Set input file
       {"output",        required_argument, 0,       'o'}, /// Set output file
+      {"angles",        required_argument, 0,       'a'}, /// Set the variables domains using [-180, +180] partitioned as specified
       {"set_size",      required_argument, 0,       's'}, /// Set size of sampling sets
       {"mc_timeout",    required_argument, 0,       'c'}, /// Set timeout for MonteCarlo sampling
       {"docking",       required_argument, 0,       'k'}, /// Set minimum number of contacts for docking
@@ -57,7 +58,7 @@ _target_sequence  ( "" ) {
     
     /* getopt_long stores the option index here. */
     int option_index = 0;
-    c = getopt_long (argc, argv, "hvi:o:s:c:k:g:t:",
+    c = getopt_long (argc, argv, "hvi:o:a:s:c:k:g:t:",
                      long_options, &option_index);
     /* Detect the end of the options. */
     if ( c == -1 ) break;
@@ -84,11 +85,14 @@ _target_sequence  ( "" ) {
       case 'o':
         _out_file = optarg;
         break;
+      case 'a':
+        gh_params.set_angles = atoi ( optarg );
+        break;
       case 's':
         gh_params.set_size = atoi ( optarg );
         break;
       case 'c':
-        gh_params.timer    = atoi ( optarg );
+        gh_params.timer = atoi ( optarg );
         break;
       case 'k':
         gh_params.sys_job         = docking;
@@ -201,6 +205,7 @@ Input_data::set_default_values () {
   gh_params.translate_str     = false;
   gh_params.translate_str_fnl = false;
   gh_params.atom_grid         = false;
+  gh_params.set_angles        = -1;
   gh_params.n_gibbs_samples   = -1;
   gh_params.timer             = -1;
   gh_params.min_n_contacts    = -1;
@@ -590,30 +595,44 @@ Input_data::set_database ( string line ) {
   start++;
   if ( line.compare( 0, 10, "COULOMBPAR" ) == 0 ) {
     _energy_charges = line.substr( start, line.size() - start );
+    start = _energy_charges.find_first_not_of ( " " );
+    _energy_charges = _energy_charges.substr(start, _energy_charges.size() - start);
     energy_parameters_read++;
   }
   else if ( line.compare( 0, 11, "LJPARAMETER" ) == 0 ) {
     _lj_params = line.substr( start, line.size() - start );
+    start = _lj_params.find_first_not_of ( " " );
+    _lj_params = _lj_params.substr(start, _lj_params.size() - start);
     energy_parameters_read++;
   }
   else if ( line.compare( 0, 11, "HDPARAMETER" ) == 0 ) {
     _h_distances = line.substr( start, line.size() - start );
+    start = _h_distances.find_first_not_of ( " " );
+    _h_distances = _h_distances.substr(start, _h_distances.size() - start);
     energy_parameters_read++;
   }
   else if ( line.compare( 0, 11, "HAPARAMETER" ) == 0 ) {
     _h_angles = line.substr( start, line.size() - start );
+    start = _h_angles.find_first_not_of ( " " );
+    _h_angles = _h_angles.substr(start, _h_angles.size() - start);
     energy_parameters_read++;
   }
   else if ( line.compare( 0, 7, "CONTACT" ) == 0 ) {
     _contact_params = line.substr( start, line.size() - start );
+    start = _contact_params.find_first_not_of ( " " );
+    _contact_params = _contact_params.substr(start, _contact_params.size() - start);
     energy_parameters_read++;
   }
   else if ( line.compare( 0, 7, "TORSPAR" ) == 0 ) {
     _tors_params = line.substr( start, line.size() - start );
+    start = _tors_params.find_first_not_of ( " " );
+    _tors_params = _tors_params.substr(start, _tors_params.size() - start);
     energy_parameters_read++;
   }
   else if (line.compare( 0, 6, "ANGLES" ) == 0 ) {
     _angles_file = line.substr(start, line.size() - start);
+    start = _angles_file.find_first_not_of ( " " );
+    _angles_file = _angles_file.substr(start, _angles_file.size() - start);
     energy_parameters_read++;
   }
   return energy_parameters_read;
@@ -1455,6 +1474,9 @@ Input_data::print_help () {
   cout << " -h|--help                  | - Print this help message.\n";
   cout << " -i|--input      (string)   | - Read and set input.\n";
   cout << " -o|--output     (string)   | - Set output file.\n";
+  cout << " -a|--angles     (integer)  | - Set variables' domains\n";
+  cout << "                            |   partitioning [-180, +180]\n";
+  cout << "                            |   as specified (deg).\n";
   cout << " -s|--set_size   (integer)  | - Set size of sampling sets.\n";
   cout << " -c|--mc_timeout (integer)  | - Set timeout for \n";
   cout << "                            |   MonteCarlo sampling.\n";

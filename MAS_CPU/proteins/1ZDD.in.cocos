@@ -1,3 +1,4 @@
+AB_INITIO
 % Database information
 COULOMBPAR  config/coulomb.csv
 LJPARAMETER config/lenard_jones.csv
