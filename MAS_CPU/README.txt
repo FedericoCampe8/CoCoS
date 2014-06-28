@@ -65,7 +65,8 @@ In what follows we describe how such files must be formatted.
 %%%%%%%%%%%%%%%%%%%%%%%%%
 The Supervisor agent creates a Structure agent for each highly constrained secondary structure element and a single Coordinator agent that folds the entire structure by moving turns or loops. 
 Nevertheless, the MA system can handle several structure and coordinator agents. 
-Moreover, it is possible to associate a priority among these agent in order to impose a preference on the order of the sub-structures to fold. This options can be chosen by the user through a specific syntax and these setting can be given to the MAS either by command line or written in an input file.Here we present the syntax of the input file in standard BNF.
+Moreover, it is possible to associate a priority among these agent in order to impose a preference on the order of the sub-structures to fold. This options can be chosen by the user through a specific syntax and these setting can be given to the MAS either by command line or written in an input file.
+Here we present the syntax of the input file in standard BNF.
 
 input       ::= [structure;*][coordinator;*]
 structure   ::= secondary int_const int_const priority search
@@ -87,7 +88,7 @@ For some examples, see the folder “proteins/”.
 %%%%%%%%%%%%%%%%%%%%%%%%% 
 %%%      DOCKING      %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%
-The user must specify 4 constraints:
+The user may specify 4 constraints:
 1) TRANSLATE atom_type AA x y z:
    This constraint translate the peptide considering the atom “atom_type” (i.e., N, C, CA, O, and H) of the
    AAth amino-acid into the position x, y, z.
