@@ -92,6 +92,7 @@ The user may specify 4 constraints:
 1) TRANSLATE atom_type AA x y z:
    This constraint translate the peptide considering the atom “atom_type” (i.e., N, C, CA, O, and H) of the
    AAth amino-acid into the position x, y, z.
+   When this constraint is enabled, SEED constraint is will not be activated (see below).
 2) ATOM_GRID path:
    This constraints enables the “atom_grid” constraint. 
    Docking is performed checking clashes between the atoms of the peptide and the atoms specified in the pdb file indicated in path.
