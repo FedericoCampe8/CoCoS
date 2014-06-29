@@ -106,6 +106,9 @@ The user may specify 4 constraints:
    r (real): half diagonal of the cube centered in (x, y, z),
    h (int) : height of the octree (i.e., number of partitions).
   If the user does not specify any seed, the system will ask the user to insert at least one seed by command line.
+5) DOCK_CONTACT min max a_idx x y z
+   This is a hard constraint and imposes a "distance" constraint between atom a_idx of the peptide and the dock atom with coordinates (x, y, z).
+   Distance must be greater than or equal min and less than or equal max.
 
 For some examples, see the folder “docking/”.
 
