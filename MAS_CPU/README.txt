@@ -108,7 +108,7 @@ The user may specify 4 constraints:
   If the user does not specify any seed, the system will ask the user to insert at least one seed by command line.
 5) DOCK_CONTACT min max a_idx x y z
    This is a hard constraint and imposes a "distance" constraint between atom a_idx (first atom = 1) of the peptide and the dock atom with coordinates (x, y, z).
-   Distance must be greater than or equal min and less than or equal max.
+   Distance must be greater than or equal min (A) and less than or equal max (A).
 
 For some examples, see the folder “docking/”.
 
