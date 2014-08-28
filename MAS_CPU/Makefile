@@ -35,6 +35,7 @@ HEADERS_CORE=atom.h\
 	propagator.h\
 	sang.h\
 	mang.h\
+	rand_move.h\
 	atm_grd.h\
 	all_distant.h\
 	centroid.h\

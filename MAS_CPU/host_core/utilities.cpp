@@ -748,7 +748,7 @@ Utilities::translate_structure ( real* structure, int reference, real x, real y,
  *          I/O aux functions          *
  ***************************************/
 void 
-Utilities::output_pdb_format ( string outf, const vector< Atom >& vec ) {
+Utilities::output_pdb_format ( string outf, const vector< Atom >& vec, real energy ) {
     FILE *fid;
     char fx[4], fy[4], fz[4];
     int k = 0;
@@ -760,6 +760,9 @@ Utilities::output_pdb_format ( string outf, const vector< Atom >& vec ) {
         return;
     }    
     int atom=1;
+    if ( energy == 0 ) energy = gh_params.minimum_energy;
+  
+    fprintf(fid, "REMARK \t ENERGY %f\n", energy );
     fprintf(fid, "MODEL    001\n");
     
     /* Write the solution into the output file */;
@@ -806,12 +809,15 @@ Utilities::output_pdb_format ( string outf, const vector< Atom >& vec ) {
 }//output_pdb_format
 
 string
-Utilities::output_pdb_format( point* structure, int len, real rmsd ){
+Utilities::output_pdb_format( point* structure, int len, real rmsd, real energy ){
   stringstream s;
   real x, y, z;
   int aa_idx = -1;
   int atom_s = 0, atom_e = len;
   int atom_counter = 0;
+  if ( energy == 0 ) energy = gh_params.minimum_energy;
+  
+  s << "REMARK \t ENERGY: " << energy << endl;
   if ( rmsd > 0 ) s << "REMARK \t RMSD: " << rmsd << endl;
   s << "MODEL " << gh_params.num_models++ << endl;
   for (int i = atom_s; i < atom_e; i++) {
@@ -951,13 +957,16 @@ Utilities::output_pdb_format( point* structure, int len, real rmsd ){
 }//print_results
 
 string
-Utilities::output_pdb_format( real* structure, real rmsd ){
+Utilities::output_pdb_format( real* structure, real rmsd, real energy ){
   stringstream s;
   real x, y, z;
   int len = (gh_params.n_res) * 5;
   int aa_idx = -1;
   int atom_s = 0, atom_e = len;
+  if ( energy == 0 ) energy = gh_params.minimum_energy;
+  
   s << "MODEL 0\n";
+  s << "REMARK \t ENERGY: " << energy << endl;
   if ( rmsd > 0 ) s << "REMARK \t RMSD: " << rmsd << endl;
   for (int i = atom_s; i < atom_e; i++) {
     x = structure[ 3*i + 0 ];

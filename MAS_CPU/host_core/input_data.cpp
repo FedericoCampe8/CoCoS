@@ -36,12 +36,13 @@ _target_sequence  ( "" ) {
     static struct option long_options[] =
     {
       /* These options set a flag. */
-      {"verbose",       no_argument, &verbose_flag,   1}, /// Print verbose during search
-      {"rmsd",          no_argument, &rmsd_flag,      1}, /// Use RMSD as obj function
-      {"auto_allign",   no_argument, &allign_flag,    1}, /// Automatically find sec. structure
-      {"cg_constraint", no_argument, &centroid_flag,  1}, /// Set CGs
-      {"gibbs_default", no_argument, &gibbs_flag,     1}, /// Use Gibbs as default for coordinators agts
-      {"translate",     no_argument, &translate_flag, 1}, /// Translate 2nd atom of final prediction on (0, 0, 0)
+      {"verbose",       no_argument, &verbose_flag,           1}, /// Print verbose during search
+      {"rmsd",          no_argument, &rmsd_flag,              1}, /// Use RMSD as obj function
+      {"auto_allign",   no_argument, &allign_flag,            1}, /// Automatically find sec. structure
+      {"cg_constraint", no_argument, &centroid_flag,          1}, /// Set CGs
+      {"gibbs_default", no_argument, &gibbs_flag,             1}, /// Use Gibbs as default for coordinators agts
+      {"translate",     no_argument, &translate_flag,         1}, /// Translate 2nd atom of final prediction on (0, 0, 0)
+      {"random_moves",  no_argument, &gh_params.random_moves, 1}, /// Random translation/rotations peptide in docking analysis
       /* These options don't set a flag.
          We distinguish them by their indices. */
       {"help",          no_argument,       0,       'h'}, /// Print a help message
@@ -58,7 +59,7 @@ _target_sequence  ( "" ) {
     
     /* getopt_long stores the option index here. */
     int option_index = 0;
-    c = getopt_long (argc, argv, "hvi:o:a:s:c:k:g:t:",
+    c = getopt_long (argc, argv, "hvri:o:a:s:c:k:g:t:",
                      long_options, &option_index);
     /* Detect the end of the options. */
     if ( c == -1 ) break;
@@ -78,6 +79,9 @@ _target_sequence  ( "" ) {
         exit( 0 );
       case 'v':
         verbose_flag = 1;
+        break;
+      case 'r':
+        gh_params.random_moves = 1;
         break;
       case 'i':
         _in_file  = optarg;
@@ -197,6 +201,7 @@ void
 Input_data::set_default_values () {
   g_docking                   = nullptr;
   g_atom_grid                 = nullptr;
+  gh_params.known_protein     = nullptr;
   gh_params.sys_job           = ab_initio;
   gh_params.gibbs_as_default  = false;
   gh_params.follow_rmsd       = false;
@@ -209,6 +214,7 @@ Input_data::set_default_values () {
   gh_params.n_gibbs_samples   = -1;
   gh_params.timer             = -1;
   gh_params.min_n_contacts    = -1;
+  gh_params.random_moves      = 0;
   gh_params.n_coordinators    = 1;
   gh_params.num_models        = 1;
   gh_params.translation_point[ 1 ]    = 0;
@@ -243,8 +249,8 @@ Input_data::clear_data () {
   free ( gh_params.tors );
   free ( gh_params.tors_corr );
   free ( gh_params.beam_energies );
-  if ( gh_params.follow_rmsd )
-    free ( gh_params.known_bb_coordinates );
+  if ( _know_prot )
+  free ( gh_params.known_bb_coordinates );
   
   /// Free memory aux
   free_dt ();
@@ -326,6 +332,7 @@ Input_data::create_input_file () {
     exit( 1 );
   }
   
+  fprintf( fid, "AB_INITIO\n" );
   fprintf( fid, ">FASTA SEQUENCE\n" );
   fprintf( fid, "%s", line_fasta.c_str() );
   fprintf( fid, "\n");
@@ -536,7 +543,10 @@ Input_data::parse_for_docking ( istream& inputFile ) {
     }
     if ( line.compare( 0, 4, "SEED" )  == 0 ) {
       seed_found = true;
-      line = line.substr ( 6, line.length() );
+      start = line.find_first_of ( " " );
+      start++;
+      line = line.substr( start, line.size() - start );
+
       stringstream stream( line );
       real n;
       int parsed_val = 0;
@@ -544,10 +554,10 @@ Input_data::parse_for_docking ( istream& inputFile ) {
       while( 1 ) {
         stream >> n;
         parsed_val++;
-        if( (!stream) || (parsed_val >= 5) ) break;
+        if( (!stream) || (parsed_val > 5) ) break;
         coords.push_back( n );
       }
-      if ( parsed_val == 5 ) {
+      if ( coords.size() == 4 ) {
         coords.push_back( 4 );
       }
       gh_params.seed_coords.push_back( coords );
@@ -577,12 +587,17 @@ Input_data::parse_for_docking ( istream& inputFile ) {
     exit( 2 );
   }
   /// Read seeds for docking from user
-  if ( !seed_found ) {
+  if ( (!seed_found) && (!gh_params.translate_str) ) {
     ask_for_seeds ();
-    if ( gh_params.min_n_contacts == -1 ) {
-      gh_params.min_n_contacts = 4;
+  }
+  /// Set default value
+  if ( gh_params.min_n_contacts == -1 ) {
+    gh_params.min_n_contacts = 4;
+    if ( gh_params.force_contact.size() > gh_params.min_n_contacts ) {
+      gh_params.min_n_contacts = gh_params.force_contact.size();
     }
   }
+  
 }//parse_for_docking
 
 int
@@ -831,7 +846,7 @@ Input_data::set_dock_constraints ( string line ) {
     found += 9;
     _atom_grid_file = line.substr(found, line.size() - found);
     gh_params.atom_grid = true;
-    g_atom_grid = new AtomGrid ( 1 );
+    g_atom_grid = new AtomGrid ( 1, 0.25 );
     g_atom_grid->fill_grid ( _atom_grid_file );
   }
   if (line.compare( 0, 9, "DOCK_GRID" ) == 0 ) {
@@ -850,6 +865,29 @@ Input_data::set_dock_constraints ( string line ) {
     g_docking = new AtomGrid ( 1, contact_distance );
     g_docking->fill_grid ( docking_file );
   }
+  if (line.compare( 0, 12, "DOCK_CONTACT" ) == 0 ) {
+    size_t found     = (line.substr( 12, line.size() )).find_first_not_of(" ");
+    found += 12;
+    size_t found_aux = (line.substr( found, line.size() )).find_first_of(" ");
+    string dock_con_vals = line.substr(found, line.size() );
+    // Read values
+    istringstream istr( dock_con_vals );
+
+    real peptide_atom;
+    real dist_min, dist_max;
+    real dock_x, dock_y, dock_z;
+    istr >> dist_min >> dist_max >> peptide_atom >> dock_x >> dock_y >> dock_z;
+    vector< real > dock_contacts;
+    dock_contacts.push_back ( dist_min );
+    dock_contacts.push_back ( dist_max );
+    dock_contacts.push_back ( peptide_atom );
+    dock_contacts.push_back ( dock_x );
+    dock_contacts.push_back ( dock_y );
+    dock_contacts.push_back ( dock_z );
+    
+    gh_params.force_contact.push_back ( dock_contacts );
+  }
+  
 }//set_dock_constraints
 
 bool
@@ -904,13 +942,15 @@ Input_data::init_data () {
   gh_params.n_points = gh_params.n_res * 15;
   assert ( gh_params.n_res <= MAX_TARGET_SIZE );
 
-  if ( gh_params.follow_rmsd ) {
-    int bb_len = (int) gh_params.target_protein->get_bblen();
+  int bb_len = (int) gh_params.target_protein->get_bblen();
+  
+  if (_know_prot) {
     gh_params.known_bb_coordinates = (real *) malloc( 3 * bb_len * sizeof(real) );
     for (uint i = 0; i < bb_len; i++)
       for (int j = 0; j < 3; j++)
         gh_params.known_bb_coordinates[i*3 + j] = gh_params.known_protein->get_tertiary()[ i ][ j ];
   }
+  
   /// Last Agent -> Default values
   bool to_break = false;
   vector < int > last_agent;
@@ -929,6 +969,7 @@ Input_data::init_data () {
     
     if ( !to_break ) last_agent.push_back( i );
   }//i
+  
   if ( last_agent.size() > 0 ) {
     MasAgentDes agt_description;
     agt_description.agt_type = coordinator;
@@ -1459,35 +1500,40 @@ void
 Input_data::print_help () {
   string spaces = "        ";
   cout << "Usage: ./cocos -i <infile> [options]\n" << endl;
-  cout << "          Options           |          Description      \n";
-  cout << "=========================== | ===========================\n";
-  cout << " --rmsd                     | - Use RMSD as obj function.\n";
-  cout << " --auto_allign              | - Automatic allignment of\n";
-  cout << "                            |   secondary structures.\n";
-  cout << " --cg_constraint            | - Set CG constraint.\n";
-  cout << " --gibbs_default            | - Use Gibbs as default for\n";
-  cout << "                            |   coordinators agents.\n";
-  cout << " --translate                | - Translate 2nd atom of\n";
-  cout << "                            |   prediction on (0, 0, 0).\n";
-  cout << " -v|--verbose               | - Printf verbose info\n";
-  cout << "                            |   during computation.\n";
-  cout << " -h|--help                  | - Print this help message.\n";
-  cout << " -i|--input      (string)   | - Read and set input.\n";
-  cout << " -o|--output     (string)   | - Set output file.\n";
-  cout << " -a|--angles     (integer)  | - Set variables' domains\n";
-  cout << "                            |   partitioning [-180, +180]\n";
-  cout << "                            |   as specified (deg).\n";
-  cout << " -s|--set_size   (integer)  | - Set size of sampling sets.\n";
-  cout << " -c|--mc_timeout (integer)  | - Set timeout for \n";
-  cout << "                            |   MonteCarlo sampling.\n";
-  cout << " -k|--docking    (integer)  | - Set minimum number of\n";
-  cout << "                            |   contacts for docking.\n";
-  cout << " -g|--gibbs      (integer)  | - Set number of Gibbs\n";
-  cout << "                            |   samples.\n";
-  cout << " -t|--gb_iterations         | - Set number of iterations\n";
-  cout << "                 (integer)  |   before swapping bins in\n";
-  cout << "                            |   Gibbs sampling.\n";
-  cout << "=========================== | ===========================\n";
+  cout << "            Options            |           Description      \n";
+  cout << "============================== | ==============================\n";
+  cout << " --rmsd                        | - Use RMSD as obj function.\n";
+  cout << " --auto_allign                 | - Automatic allignment of\n";
+  cout << "                               |   secondary structures.\n";
+  cout << " --cg_constraint               | - Set CG constraint.\n";
+  cout << " --gibbs_default               | - Use Gibbs as default for\n";
+  cout << "                               |   coordinators agents.\n";
+  cout << " --translate                   | - Translate 2nd atom of\n";
+  cout << "                               |   prediction on (0, 0, 0).\n";
+  cout << " -r|--random_moves             | - Perform random translations\n";
+  cout << "                               |   and rotations of the\n";
+  cout << "                               |   peptide when in docking\n";
+  cout << "                               |   analysis.\n";
+  cout << " -v|--verbose                  | - Printf verbose info\n";
+  cout << "                               |   during computation.\n";
+  cout << " -h|--help                     | - Print this help message.\n";
+  cout << " -i|--input      (string)      | - Read and set input.\n";
+  cout << " -o|--output     (string)      | - Set output file.\n";
+  cout << " -a|--angles     (integer)     | - Set variables' domains\n";
+  cout << "                               |   partitioning [-180, +180]\n";
+  cout << "                               |   as specified (deg).\n";
+  cout << " -s|--set_size   (integer)     | - Set size of sampling sets.\n";
+  cout << " -c|--mc_timeout (integer)     | - Set timeout for \n";
+  cout << "                               |   MonteCarlo sampling.\n";
+  cout << " -k|--docking    (integer)     | - Set minimum number of\n";
+  cout << "                               |   contacts for docking.\n";
+  cout << "                               |   Default: 4.\n";
+  cout << " -g|--gibbs      (integer)     | - Set number of Gibbs\n";
+  cout << "                               |   samples.\n";
+  cout << " -t|--gb_iterations            | - Set number of iterations\n";
+  cout << "                 (integer)     |   before swapping bins in\n";
+  cout << "                               |   Gibbs sampling.\n";
+  cout << "=============================  | =============================\n";
   cout << "You may want to try:\n";
   cout << "\t" << "./cocos -i proteins/1ZDD.in.cocos -v\n";
   cout << "Other examples, input data, and structures are present in the folder \"protein\".\n";

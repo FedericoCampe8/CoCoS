@@ -17,14 +17,19 @@ _wrks_it           ( mas_agt->get_workers()->begin() ) {
   /// Set energy function
   if ( gh_params.sys_job == ab_initio ) {
     if ( gh_params.follow_rmsd ) {
-      _energy_function = EnergyFactory::getEnergyFunction ( EnergyFactory::RmsdEnergy );
+      _energy_function = EnergyFactory::getEnergyFunction ( EnergyType::Rmsd_Energy_t );
     }
     else {
-      _energy_function = EnergyFactory::getEnergyFunction ( EnergyFactory::PotentialEnergy, mas_agt->get_agt_type() );
+      _energy_function = EnergyFactory::getEnergyFunction ( EnergyType::Potential_Energy_t, mas_agt->get_agt_type() );
     }
   }
   else {
-    _energy_function = EnergyFactory::getEnergyFunction ( EnergyFactory::ContactEnergy );
+    if ( gh_params.force_contact.size() ) {
+      _energy_function = EnergyFactory::getEnergyFunction ( EnergyType::Contact_Energy_t );
+    }
+    else {
+    _energy_function = EnergyFactory::getEnergyFunction ( EnergyType::Contact_Energy_t );
+    }
   }
 }//-
 

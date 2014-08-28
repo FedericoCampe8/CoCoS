@@ -69,7 +69,7 @@ Math::exponential_moving_avg (real alpha,real current_val, real prev_avg){
 
 real
 Math::truncate_number ( real n, int n_of_decimals ) {
-  int ten_to = pow ( 10, n_of_decimals );
+  int ten_to = (int) pow ( 10.0, n_of_decimals );
   double intpart, fractpart;
   fractpart =  modf ( n , &intpart);
   fractpart *= ten_to;

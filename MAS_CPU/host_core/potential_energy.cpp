@@ -39,7 +39,7 @@ PotentialEnergy::calculate_energy ( real* setOfStructures, real* setOfEnergies,
   real correlation_component_value;
   /// Valid structure: calculate energy
   for ( int blockIdx = 0; blockIdx < n_blocks; blockIdx++ ) {
-    if ( validStructures[ blockIdx ] > 0 ) {
+    if ( validStructures[ blockIdx ] < MAX_ENERGY ) {
       memset ( h_values, 0, n_res*sizeof(real) );
       memset ( c_values, 0, n_res*sizeof(real) );
       correlation_component_value = 0;
@@ -70,7 +70,9 @@ PotentialEnergy::calculate_energy ( real* setOfStructures, real* setOfEnergies,
       hydrogen_component_value    * _hydrogen_weight +
       contact_component_value     * _contact_weight  +
       correlation_component_value * _correlation_weight ;
+      
       setOfEnergies[ blockIdx ] *= validStructures[ blockIdx ];
+      
     }
     else {
       setOfEnergies[ blockIdx ] = MAX_ENERGY;

@@ -48,9 +48,10 @@ protected:
   
   WorkerAgent* worker_selection ();
   void force_label ();
-  void assign_with_prob ( int label, WorkerAgent* w );
+  void assign_with_prob ( int label, WorkerAgent* w, real extern_prob = 0 );
   void update_solution ();
   void backtrack ();
+  
 public:
   MONTECARLO ( MasAgent* mas_agt );
   ~MONTECARLO ();

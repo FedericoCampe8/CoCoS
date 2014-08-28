@@ -14,7 +14,7 @@ Math::max (real a, real b) {
 }//max
 
 /* 
- *Compute the distance from the current point to previous point (left hand size points)
+ * Compute the distance from the current point to previous point (left hand size points)
  */
 void 
 Math::distance(real *X, real *distance, const int pos){

@@ -439,8 +439,8 @@ Rmsd_fast::get_rmsd ( real* beam_str, real* beam_energies,
     if ( validity_solutions[ blockIdx ] > 0 ) {
       /// Calculate RMSD
       beam_energies[ blockIdx ] =
-      get_rmsd_aux ( &beam_str[ blockIdx * gh_params.n_res * 15 ], known_prot,
-                     nres, scope_first, scope_second );
+      get_rmsd ( &beam_str[ blockIdx * gh_params.n_res * 15 ], known_prot,
+                 nres, scope_first, scope_second );
     }
     else {
       beam_energies[ blockIdx ] = MAX_ENERGY;
@@ -449,12 +449,12 @@ Rmsd_fast::get_rmsd ( real* beam_str, real* beam_energies,
 }//get_rmsd
 
 real
-Rmsd_fast::get_rmsd_aux ( real* my_prot,
-                          real* known_prot, int nres,
-                          int scope_first, int scope_second ) {
+Rmsd_fast::get_rmsd ( real* my_prot,
+                      real* known_prot, int nres,
+                      int scope_first,  int scope_second ) {
   double rmsd;
-  double ref_atoms[4*nres][3];
-  double mov_xlist[4*nres][3];
+  double ref_atoms[ 4 * nres ][ 3 ];
+  double mov_xlist[ 4 * nres ][ 3 ];
   
   int t = 0;
   int offset_know_prot = 15;

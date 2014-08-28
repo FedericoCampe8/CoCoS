@@ -14,19 +14,21 @@
 #include "contact_energy.h"
 #include "contact_decay_energy.h"
 
+  enum class EnergyType {
+    Potential_Energy_t,
+    Rmsd_Energy_t,
+    Contact_Energy_t,
+    Contact_Decay_Energy_t
+  };
+
 class EnergyFactory {
 public:
-  enum EnergyType {
-    PotentialEnergy,
-    RmsdEnergy,
-    ContactEnergy,
-    ContactDecayEnergy
-  };
   
   static Energy*
   getEnergyFunction( EnergyType energyType, agent_type agentType=structure ) {
+    Energy * energy_class = nullptr;
     switch ( energyType ) {
-      case PotentialEnergy:
+      case EnergyType::Potential_Energy_t:
       {
         real w_a = gh_params.str_weights[ 0 ];
         real w_b = gh_params.str_weights[ 1 ];
@@ -36,26 +38,34 @@ public:
           w_b = gh_params.crd_weights[ 1 ];
           w_c = gh_params.crd_weights[ 2 ];
         }
-        return ((new PotentialEnergy::PotentialEnergy ())->set_parameters ( gd_params.secondary_s_info,
+	
+	energy_class = new PotentialEnergy ();
+	static_cast<PotentialEnergy*> ( energy_class )->set_parameters ( gd_params.secondary_s_info,
                                                                             gd_params.h_distances,
                                                                             gd_params.h_angles,
                                                                             gd_params.contact_params,
                                                                             gd_params.aa_seq,
                                                                             gd_params.tors, gd_params.tors_corr,
-                                                                            w_a, w_b, w_c ));
+                                                                            w_a, w_b, w_c );
       }
-      case RmsdEnergy:
-        return ((new RmsdEnergy::RmsdEnergy())->set_parameters ( gd_params.known_prot ));
-      case ContactEnergy:
-        return ((new ContactEnergy::ContactEnergy())->set_parameters ( gd_params.aa_seq ));
-      case ContactDecayEnergy:
+        break;
+      case EnergyType::Rmsd_Energy_t:
+	energy_class = new RmsdEnergy ();
+	static_cast<RmsdEnergy*> ( energy_class )->set_parameters ( gd_params.known_prot );
+        break;
+      case EnergyType::Contact_Energy_t:
+	energy_class = new ContactEnergy ();
+	static_cast<ContactEnergy*> ( energy_class )->set_parameters ( gd_params.aa_seq );
+        break;
+      case EnergyType::Contact_Decay_Energy_t:
       {
         point atom  = { 0, 0, 0 };
-        return ((new ContactDecayEnergy::ContactDecayEnergy())->set_parameters ( gd_params.aa_seq,
-                                                                                 atom, 0 ));
+	energy_class = new ContactDecayEnergy ();
+	static_cast<ContactDecayEnergy*> ( energy_class )->set_parameters ( gd_params.aa_seq, atom, 0 );
       }
+        break;
     }
-    throw "Invalid Energy function.";
+     return energy_class;
   }//getEnergyFunction
 };
 

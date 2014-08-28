@@ -44,11 +44,14 @@ class AtomGrid {
   void add ( real x, real y, real z  );
   void add ( real x, real y, real z, atom_type type );
   void add ( point p, atom_type t, int atom_idx );
-  bool query ( real x, real y, real z );
-  bool query ( real x, real y, real z, atom_type type );
-  bool query ( real x, real y, real z, int radius );
-  bool query ( const point& vp, atom_type type );
-  bool query ( const point& vp, atom_type type, int ref_aa, int rad = -1 );
-  bool query ( const Atom& a );
+  /* Query atoms: check neighborhoods.
+   * It returns the sum of the distances that are less than 
+   * the allowed threshold (i.e., clash). Otherwise it returns 0. */
+  real query ( real x, real y, real z );
+  real query ( real x, real y, real z, atom_type type );
+  real query ( real x, real y, real z, int radius );
+  real query ( const point& vp, atom_type type );
+  real query ( const point& vp, atom_type type, int ref_aa, int rad = -1 );
+  real query ( const Atom& a );
 };
 #endif

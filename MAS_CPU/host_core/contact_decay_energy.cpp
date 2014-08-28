@@ -27,57 +27,85 @@ ContactDecayEnergy::calculate_energy ( real* setOfStructures, real* setOfEnergie
   real my_CG[ 3 ];
   real c_values[ n_res ];
   real * current_structure;
+  real contact_component_value;
+  
+  // Points
+  point pep_point;
+  point dock_point;
+  // Distances
+  real min_bound, max_bound;
+  real distance, avg_distance;
+  // Dock atom
+  int atom_idx;
+  real weight = 10.0;//1000.0
   /// Valid structure: calculate contacts
   for ( int blockIdx = 0; blockIdx < n_blocks; blockIdx++ ) {
-    if ( validStructures[ blockIdx ] > 0 ) {
+    if ( validStructures[ blockIdx ] < MAX_ENERGY ) {
       memset ( c_values, 0, n_res*sizeof(real) );
       current_structure = &setOfStructures[ blockIdx * n_res * 15 ];
-      /// Check contacts for each atom of the backbone --- Backbone
-      for ( int threadIdx = 0; threadIdx < n_res * 5; threadIdx++ ) {
-        if ( !(g_docking->query ( current_structure[ 3*threadIdx + 0 ],
-                                  current_structure[ 3*threadIdx + 1 ],
-                                  current_structure[ 3*threadIdx + 2 ],
-                                  get_atom_type ( threadIdx ) )) ) {
-          /// Contact
-          c_values[ threadIdx / 5 ] -= 1;
-        }
-      }//threadIdx
-      /// Check contacts for each atom of the Sidechain --- Sidechain
-      for ( int threadIdx = 0; threadIdx < n_res - 2; threadIdx++ ) {
-        Utilities::calculate_cg_atom( _aa_seq [ threadIdx + 1 ],
-                                      &current_structure [ (threadIdx       * 5 + 1)*3 ],
-                                      &current_structure [ ((threadIdx + 1) * 5 + 1)*3 ],
-                                      &current_structure [ ((threadIdx + 2) * 5 + 1)*3 ],
-                                      my_CG, &CG_radius );
 
-        if ( !g_docking->query( my_CG, CB, -1, CG_radius ) ) {
-          /// Contact
-          c_values[ threadIdx ] -= 1;
+      // Check contacts between a given pair of atoms
+      contact_component_value = 0;
+      // Check hard constraints
+      distance     = 0;
+      avg_distance = 0;
+      for ( int idx = 0; idx < gh_params.force_contact.size(); idx++ ) {
+        min_bound = gh_params.force_contact[ idx ][ 0 ];
+        max_bound = gh_params.force_contact[ idx ][ 1 ];
+        atom_idx  = (int) gh_params.force_contact[ idx ][ 2 ];
+          
+        pep_point[ 0 ]  =  current_structure[ (( atom_idx - 1) * 3) + 0 ];
+        pep_point[ 1 ]  =  current_structure[ (( atom_idx - 1) * 3) + 1 ];
+        pep_point[ 2 ]  =  current_structure[ (( atom_idx - 1) * 3) + 2 ];
+        
+        dock_point[ 0 ] = gh_params.force_contact[ idx ][ 3 ];
+        dock_point[ 1 ] = gh_params.force_contact[ idx ][ 4 ];
+        dock_point[ 2 ] = gh_params.force_contact[ idx ][ 5 ];
+        
+        distance = Math::eucl_dist( pep_point, dock_point );
+        avg_distance += distance;
+        //cout << "Distance " << distance << endl;
+        if ( distance > max_bound ) {
+          contact_component_value += ( (weight * max_bound) / (distance) ); // distance*distance
         }
-      }//thr
-      /// Check contacts between a given pair of atoms
-      point my_atom_coordinates;
-      my_atom_coordinates [ 0 ] = current_structure [ _atom_idx * 3 + 0 ];
-      my_atom_coordinates [ 1 ] = current_structure [ _atom_idx * 3 + 1 ];
-      my_atom_coordinates [ 2 ] = current_structure [ _atom_idx * 3 + 2 ];
-      real distance = Math::eucl_dist ( my_atom_coordinates, _atom_coordinates );
+        else  if ( distance >= min_bound ) {
+          contact_component_value += weight * max_bound;
+        }
+        else {
+          contact_component_value = gh_params.force_contact.size() * MAX_ENERGY;
+        }
+      }//idx
       
-      real contact_component_value = 0;
-      for ( int i = scope_start; i <= scope_end; i++ ) {
-        contact_component_value += c_values[ i ];
-      }
-      
-      setOfEnergies[ blockIdx ] = -1;
-      
-      if ( contact_component_value < 0 ) {
-        contact_component_value *= 10.0 / distance;
+      avg_distance /= (gh_params.force_contact.size() * 1.0);
+
+      //cout << "contact_component_value " << contact_component_value << endl; getchar();
+      if ( contact_component_value < (gh_params.force_contact.size() * MAX_ENERGY) ) {
+        if ( (validStructures[ blockIdx ] == 0) && (avg_distance < 5) ) {
+          validStructures[ blockIdx ] = CLOSE_TO_ZERO_VAL;
+        }
+        real constraint_weight = 1.0/validStructures[ blockIdx ];
+        if ( constraint_weight > 3 * contact_component_value ) {
+          constraint_weight = 3 * contact_component_value;
+        }
+        
+        real dynamic_weight = 0.4;//0.4
+        if ( contact_component_value >= (weight * max_bound * gh_params.force_contact.size()) ) {
+          dynamic_weight = 50;
+          /*
+          cout << "Energy val " << contact_component_value << " validity " <<
+          validStructures[ blockIdx ] << " -> " << dynamic_weight * constraint_weight << endl;
+          cout << "Total " << setOfEnergies[ blockIdx ] << endl; getchar();
+           */
+        }
+        
+        //cout << "Energy val " << contact_component_value << " validity " <<
+        //validStructures[ blockIdx ] << " -> " << dynamic_weight * constraint_weight << endl;
+        setOfEnergies[ blockIdx ] = -1.0 * ( contact_component_value + dynamic_weight * constraint_weight );
+        //cout << "Total " << setOfEnergies[ blockIdx ] << endl; getchar();
       }
       else {
-        contact_component_value *= 5.0 / distance;
+        setOfEnergies[ blockIdx ] = MAX_ENERGY;
       }
-      
-      setOfEnergies[ blockIdx ] = contact_component_value;
-      setOfEnergies[ blockIdx ] *= validStructures[ blockIdx ];
     }
     else {
       setOfEnergies[ blockIdx ] = MAX_ENERGY;

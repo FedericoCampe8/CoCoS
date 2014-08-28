@@ -162,7 +162,7 @@ AtomGrid::allocate_more_atoms ( int idx ){
   space[ idx ].size++;
 }//-
 
-bool
+real
 AtomGrid::query ( real x, real y, real z ) {
   real position[ 3 ];
   position[ 0 ] = x;
@@ -171,7 +171,7 @@ AtomGrid::query ( real x, real y, real z ) {
   return query ( position, X, -1 );
 }//query
 
-bool
+real
 AtomGrid::query ( real x, real y, real z, atom_type type ) {
   real position[ 3 ];
   position[ 0 ] = x;
@@ -180,18 +180,18 @@ AtomGrid::query ( real x, real y, real z, atom_type type ) {
   return query ( position, type, -1 );
 }//query
 
-bool
+real
 AtomGrid::query ( const point& vp, atom_type type ) {
   return query ( vp, type, -1 );
 }
 
-bool
+real
 AtomGrid::query ( const Atom& a ) {
   return query ( a.position, a.type, a.ref_aa );
 }//query
 
 //@todo: Investigate on Hash function
-bool
+real
 AtomGrid::query ( const point& vp, atom_type type, int ref_aa, int rad ) {
   int x = (int)floor ( vp[ 0 ] / GRID_SIDE );
   int y = (int)floor ( vp[ 1 ] / GRID_SIDE );
@@ -199,13 +199,15 @@ AtomGrid::query ( const point& vp, atom_type type, int ref_aa, int rad ) {
   int d = _grid_max_dist;
 
 #ifdef QUERY_DBG
-  cout << "#log: AtomGrid::query - Query point " << x << " " << y << " "
-  << z << " " << " dist " << d << endl;
+  cout << "#log: AtomGrid::query - Query point " <<
+  x << " " << y << " " << z << " " << " dist " << d << endl;
 #endif
   
   size_t a = 0;
   size_t idx, natoms;
-  real distx, disty, distz, dist, limit;
+  real dist, tot_dist = 0;
+  real limit;
+  real distx, disty, distz;
   int radius = (int) Utilities::get_atom_radii ( type );
   if ( rad > 0 ) { radius = rad; }
 
@@ -227,11 +229,13 @@ AtomGrid::query ( const point& vp, atom_type type, int ref_aa, int rad ) {
           if( (abs(other_ref_aa - ref_aa) > 2) ||
               (other_ref_aa < 0) ||
               (ref_aa < 0) ) {
+            // Calculate distance between the two atoms
             distx = space[ idx ].atom_list[ a ][ 0 ] - vp[ 0 ];
             disty = space[ idx ].atom_list[ a ][ 1 ] - vp[ 1 ];
             distz = space[ idx ].atom_list[ a ][ 2 ] - vp[ 2 ];
             dist  = sqrt( distx*distx + disty*disty + distz*distz );
-	    
+            if ( dist == 0 ) dist = CLOSE_TO_ZERO_VAL;
+            
             atom_type other_type =
               space[idx].atom_list[a].type;
             atom_radii other_radius = 
@@ -241,14 +245,19 @@ AtomGrid::query ( const point& vp, atom_type type, int ref_aa, int rad ) {
                     ((radius + other_radius) - _epsilon)/2 :
                     (radius  + other_radius) - _epsilon;
             
-            /// If distance is less than the threshold -> fail distance constraint
-            if ( dist * ( 100 ) < limit )
-              return false;
+            // If distance is less than the threshold ->
+            // fail distance constraint: sum the distances
+            if ( dist * ( 100 ) < limit ) {
+              tot_dist += dist;
+            }
+            else {
+              tot_dist += 0;
+            }
           }
         }
       }
-  return true;
-}//-
+  return tot_dist;
+}//query
 
 /***************************************************
  *                                                 *

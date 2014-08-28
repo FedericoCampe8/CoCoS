@@ -23,10 +23,20 @@ private:
   /// Other and info
   size_t _n_seeds;
   size_t _n_total_sols;
+  
+  /// Printing options
+  bool _to_print;
+  real _failed_constraints;
+  
+  void print_str_step_by_step ( int );
+  bool verify_conditions      ( int );
+  
 public:
   DOCKING ( MasAgent* mas_agt );
   ~DOCKING ();
   void search ();
+  
+  int choose_label ( WorkerAgent* w );
   
   /// Set the parameters for the centroid of the cube to subdivide as an oc_tree
   void set_parameters ( std::vector < std::vector < real > >& coords );

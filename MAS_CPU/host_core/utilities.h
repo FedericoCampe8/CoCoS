@@ -66,9 +66,9 @@ namespace Utilities{
   /***************************************
    *          I/O aux functions          *
    ***************************************/
-  void output_pdb_format ( std::string, const std::vector<Atom>& );
-  std::string output_pdb_format ( point* structure, int len=0, real rmsd=1000 );
-  std::string output_pdb_format ( real* structure, real rmsd=1000 );
+  void output_pdb_format ( std::string, const std::vector<Atom>&, real energy = 0 );
+  std::string output_pdb_format ( point* structure, int len=0, real rmsd=1000, real energy = 0 );
+  std::string output_pdb_format ( real* structure, real rmsd=1000, real energy = 0 );
   
   int  get_format_digits ( real );
   std::string get_format_spaces ( real );

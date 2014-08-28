@@ -106,7 +106,10 @@ typedef struct {
   real * tors_corr;
   real * beam_energies;
   /// Docking
+  int random_moves;
   int min_n_contacts;
+  /// Contacts to ensure consistency when performing docking
+  std::vector < std::vector< real > >force_contact;
 } H_GLB_params;
 
 typedef struct {

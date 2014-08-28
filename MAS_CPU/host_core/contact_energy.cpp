@@ -25,15 +25,15 @@ ContactEnergy::calculate_energy ( real* setOfStructures, real* setOfEnergies,
   real * current_structure;
   /// Valid structure: calculate contacts
   for ( int blockIdx = 0; blockIdx < n_blocks; blockIdx++ ) {
-    if ( validStructures[ blockIdx ] > 0 ) {
+    if ( validStructures[ blockIdx ] < MAX_ENERGY ) {
       memset ( c_values, 0, n_res*sizeof(real) );
       current_structure = &setOfStructures[ blockIdx * n_res * 15 ];
       /// Check contacts for each atom of the backbone --- Backbone
       for ( int threadIdx = 0; threadIdx < n_res * 5; threadIdx++ ) {
-        if ( !(g_docking->query ( current_structure[ 3*threadIdx + 0 ],
-                                  current_structure[ 3*threadIdx + 1 ],
-                                  current_structure[ 3*threadIdx + 2 ],
-                                  get_atom_type ( threadIdx ) )) ) {
+        if ( g_docking->query ( current_structure[ 3*threadIdx + 0 ],
+                                current_structure[ 3*threadIdx + 1 ],
+                                current_structure[ 3*threadIdx + 2 ],
+                                get_atom_type ( threadIdx ) ) > 0 )  {
           /// Contact
           c_values[ threadIdx / 5 ] -= 1;
         }
@@ -46,7 +46,7 @@ ContactEnergy::calculate_energy ( real* setOfStructures, real* setOfEnergies,
                                       &current_structure [ ((threadIdx + 2) * 5 + 1)*3 ],
                                       my_CG, &CG_radius );
 
-        if ( !g_docking->query( my_CG, CB, -1, CG_radius ) ) {
+        if ( g_docking->query( my_CG, CB, -1, CG_radius ) > 0 ) {
           /// Contact
           c_values[ threadIdx ] -= 1;
         }
